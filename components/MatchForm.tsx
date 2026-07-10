@@ -1,16 +1,35 @@
 "use client";
 
 import { useState } from "react";
-import { createMatch } from "@/app/admin/(protected)/matches/actions";
 import type { MatchType } from "@/lib/types";
 
-export function NewMatchForm() {
-  const [type, setType] = useState<MatchType>("internal");
+type MatchFormDefaults = {
+  match_type?: MatchType;
+  opponent?: string;
+  match_date?: string; // pre-formatted for <input type="datetime-local">
+  venue?: string;
+  home_away?: string;
+};
+
+// Shared form for creating and editing a match. `action` is the server
+// action to run (createMatch, or updateMatch bound to an id).
+export function MatchForm({
+  action,
+  defaults,
+  submitLabel,
+}: {
+  action: (formData: FormData) => void;
+  defaults?: MatchFormDefaults;
+  submitLabel: string;
+}) {
+  const [type, setType] = useState<MatchType>(
+    defaults?.match_type ?? "internal"
+  );
   const isFriendly = type === "friendly";
 
   return (
     <form
-      action={createMatch}
+      action={action}
       className="bg-surface border border-line rounded-lg p-5 space-y-4"
     >
       <div>
@@ -35,6 +54,7 @@ export function NewMatchForm() {
         <input
           name="opponent"
           required={isFriendly}
+          defaultValue={defaults?.opponent ?? ""}
           placeholder={isFriendly ? "e.g. Riverside FC" : "e.g. Whites vs Blacks"}
           className="w-full bg-surface-2 border border-line rounded px-3 py-2"
         />
@@ -53,6 +73,7 @@ export function NewMatchForm() {
           name="match_date"
           type="datetime-local"
           required
+          defaultValue={defaults?.match_date ?? ""}
           className="w-full bg-surface-2 border border-line rounded px-3 py-2"
         />
       </div>
@@ -63,6 +84,7 @@ export function NewMatchForm() {
         </label>
         <input
           name="venue"
+          defaultValue={defaults?.venue ?? ""}
           className="w-full bg-surface-2 border border-line rounded px-3 py-2"
         />
       </div>
@@ -74,6 +96,7 @@ export function NewMatchForm() {
           </label>
           <select
             name="home_away"
+            defaultValue={defaults?.home_away ?? "home"}
             className="w-full bg-surface-2 border border-line rounded px-3 py-2"
           >
             <option value="home">Home</option>
@@ -87,7 +110,7 @@ export function NewMatchForm() {
         type="submit"
         className="w-full bg-lime text-ink font-display font-semibold uppercase tracking-wide rounded py-2.5 hover:brightness-95 transition"
       >
-        Create match &amp; set squad next
+        {submitLabel}
       </button>
     </form>
   );

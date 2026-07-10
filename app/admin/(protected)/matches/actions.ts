@@ -37,6 +37,36 @@ export async function createMatch(formData: FormData) {
   }
 }
 
+// Edits an existing match's details (type, opponent/label, date, venue,
+// home/away). Does not touch the squad, score, or stats.
+export async function updateMatch(matchId: string, formData: FormData) {
+  const supabase = await createClient();
+  const match_type =
+    String(formData.get("match_type") ?? "internal") === "friendly"
+      ? "friendly"
+      : "internal";
+  let opponent = String(formData.get("opponent") ?? "").trim();
+  const match_date = String(formData.get("match_date") ?? "");
+  const venue = String(formData.get("venue") ?? "").trim() || null;
+  const home_away = String(formData.get("home_away") ?? "home");
+
+  if (!opponent) {
+    if (match_type === "friendly") return;
+    opponent = "Internal match day";
+  }
+  if (!match_date) return;
+
+  await supabase
+    .from("matches")
+    .update({ opponent, match_type, match_date, venue, home_away })
+    .eq("id", matchId);
+
+  revalidatePath("/admin/matches");
+  revalidatePath("/");
+  revalidatePath(`/results/${matchId}`);
+  redirect("/admin/matches");
+}
+
 // Deletes a match entirely — used to remove fixtures created by
 // mistake. The match_squad and match_stats rows are removed too via
 // the ON DELETE CASCADE foreign keys in schema.sql, so no orphan data

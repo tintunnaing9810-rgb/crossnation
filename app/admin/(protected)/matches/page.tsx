@@ -46,6 +46,9 @@ export default async function AdminMatchesPage() {
                   <p className="font-display font-semibold">{matchTitle(m)}</p>
                 </div>
                 <div className="flex items-center gap-4 text-sm">
+                  <Link href={`/admin/matches/${m.id}/edit`} className="text-muted hover:text-paper transition-colors">
+                    Edit
+                  </Link>
                   <Link href={`/admin/matches/${m.id}`} className="text-lime hover:underline">
                     Set squad
                   </Link>
@@ -89,6 +92,12 @@ export default async function AdminMatchesPage() {
                       ? `${m.away_score} - ${m.home_score}`
                       : `${m.home_score} - ${m.away_score}`}
                   </Badge>
+                  <Link href={`/admin/matches/${m.id}/edit`} className="text-sm text-muted hover:text-paper transition-colors">
+                    Edit
+                  </Link>
+                  <Link href={`/admin/matches/${m.id}/result`} className="text-sm text-gold hover:underline">
+                    Result
+                  </Link>
                   <Link href={`/results/${m.id}`} className="text-sm text-lime hover:underline">
                     View
                   </Link>
