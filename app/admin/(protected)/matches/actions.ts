@@ -27,6 +27,19 @@ export async function createMatch(formData: FormData) {
   }
 }
 
+// Deletes a match entirely — used to remove fixtures created by
+// mistake. The match_squad and match_stats rows are removed too via
+// the ON DELETE CASCADE foreign keys in schema.sql, so no orphan data
+// is left behind and player totals recompute automatically.
+export async function deleteMatch(matchId: string) {
+  const supabase = await createClient();
+  await supabase.from("matches").delete().eq("id", matchId);
+
+  revalidatePath("/admin/matches");
+  revalidatePath("/");
+  revalidatePath("/results");
+}
+
 // Sets which players are announced for this match. Upserts one
 // match_squad row per active player so re-visiting this page later
 // shows the previous selection.

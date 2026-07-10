@@ -2,6 +2,8 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { formatMatchDate } from "@/lib/format";
 import { SectionHeading, EmptyState, Badge } from "@/components/ui";
+import { ConfirmSubmitButton } from "@/components/ConfirmSubmitButton";
+import { deleteMatch } from "./actions";
 import type { Match } from "@/lib/types";
 
 export default async function AdminMatchesPage() {
@@ -41,13 +43,21 @@ export default async function AdminMatchesPage() {
                   <p className="text-xs text-muted">{formatMatchDate(m.match_date)}</p>
                   <p className="font-display font-semibold">vs {m.opponent}</p>
                 </div>
-                <div className="flex gap-4 text-sm">
+                <div className="flex items-center gap-4 text-sm">
                   <Link href={`/admin/matches/${m.id}`} className="text-lime hover:underline">
                     Set squad
                   </Link>
                   <Link href={`/admin/matches/${m.id}/result`} className="text-gold hover:underline">
                     Enter result
                   </Link>
+                  <form action={deleteMatch.bind(null, m.id)}>
+                    <ConfirmSubmitButton
+                      confirmMessage={`Delete the upcoming match vs ${m.opponent}? This can't be undone.`}
+                      className="text-red-400 hover:underline"
+                    >
+                      Delete
+                    </ConfirmSubmitButton>
+                  </form>
                 </div>
               </div>
             ))}
