@@ -155,7 +155,20 @@ export default async function HomePage() {
             )}
           </div>
         ) : (
-          <EmptyState>No results logged yet.</EmptyState>
+          <div className="wing-cut bg-surface border border-line p-8 sm:p-10 text-center">
+            <p className="font-display text-xl sm:text-2xl font-semibold uppercase">
+              {upcoming ? "Result coming soon" : "No matches played yet"}
+            </p>
+            <p className="text-sm text-muted mt-2 max-w-md mx-auto leading-relaxed">
+              {upcoming
+                ? `The score, scorers and man of the match for ${matchTitle(
+                    upcoming.match
+                  )} land here right after ${formatMatchDate(
+                    upcoming.match.match_date
+                  )}.`
+                : "The moment the first match is played, the score, scorers and man of the match show up here. Check back after the next game."}
+            </p>
+          </div>
         )}
       </section>
 
