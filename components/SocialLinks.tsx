@@ -1,19 +1,27 @@
 import { SOCIAL } from "@/lib/links";
 
 // Instagram + Messenger links with inline icons. Used in the footer and
-// on the Join page. External links open in a new tab.
-export function SocialLinks({ className = "" }: { className?: string }) {
+// on the Join page. External links open in a new tab. `iconSize` bumps
+// the icon (and label) up for more prominent placements.
+export function SocialLinks({
+  className = "",
+  iconSize = 16,
+}: {
+  className?: string;
+  iconSize?: number;
+}) {
+  const big = iconSize >= 24;
   return (
-    <div className={`flex items-center gap-5 ${className}`}>
+    <div className={`flex items-center gap-6 ${big ? "text-base" : ""} ${className}`}>
       <a
         href={SOCIAL.instagram}
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-flex items-center gap-1.5 hover:text-paper transition-colors"
+        className="inline-flex items-center gap-2 hover:text-paper transition-colors"
       >
         <svg
-          width="16"
-          height="16"
+          width={iconSize}
+          height={iconSize}
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -32,11 +40,11 @@ export function SocialLinks({ className = "" }: { className?: string }) {
         href={SOCIAL.messenger}
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-flex items-center gap-1.5 hover:text-paper transition-colors"
+        className="inline-flex items-center gap-2 hover:text-paper transition-colors"
       >
         <svg
-          width="16"
-          height="16"
+          width={iconSize}
+          height={iconSize}
           viewBox="0 0 24 24"
           fill="currentColor"
           aria-hidden="true"

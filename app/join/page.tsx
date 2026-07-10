@@ -31,12 +31,6 @@ export default function JoinPage() {
           CrossNation Futsal Club is looking for players. Fill in the form
           below and we&apos;ll get back to you about the next match.
         </p>
-        <div className="mt-5">
-          <p className="text-xs uppercase tracking-wide text-muted mb-2">
-            Or reach us directly
-          </p>
-          <SocialLinks className="text-muted" />
-        </div>
       </section>
 
       <section className="grid sm:grid-cols-3 gap-4">
@@ -51,6 +45,12 @@ export default function JoinPage() {
       <section className="max-w-lg">
         <SectionHeading eyebrow="Get in touch" title="Request to join" />
         <JoinForm />
+        <div className="mt-6">
+          <p className="text-xs uppercase tracking-wide text-muted mb-3">
+            Or reach us directly
+          </p>
+          <SocialLinks className="text-muted" iconSize={26} />
+        </div>
       </section>
     </div>
   );
