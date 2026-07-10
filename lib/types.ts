@@ -1,3 +1,15 @@
+import type { PlayerBadge } from "@/lib/badges";
+
+// Regular = trains/plays most weeks, Irregular = occasional, Inactive =
+// no longer playing (kept on the public squad, greyed out, for history).
+export type PlayerStatus = "regular" | "irregular" | "inactive";
+
+export const PLAYER_STATUSES: { value: PlayerStatus; label: string }[] = [
+  { value: "regular", label: "Regular" },
+  { value: "irregular", label: "Irregular" },
+  { value: "inactive", label: "Inactive" },
+];
+
 export type Player = {
   id: string;
   name: string;
@@ -5,16 +17,21 @@ export type Player = {
   jersey_number: number | null;
   photo_url: string | null;
   bio: string | null;
-  active: boolean;
+  status: PlayerStatus;
+  badge: PlayerBadge | null;
   created_at: string;
 };
 
 export type MatchStatus = "upcoming" | "completed" | "cancelled";
 export type HomeAway = "home" | "away" | "neutral";
 
+// Internal = a two-team CrossNation match day; Friendly = vs another club.
+export type MatchType = "internal" | "friendly";
+
 export type Match = {
   id: string;
   opponent: string;
+  match_type: MatchType;
   match_date: string;
   venue: string | null;
   home_away: HomeAway;
@@ -61,7 +78,8 @@ export type PlayerTotals = {
   position: string | null;
   jersey_number: number | null;
   photo_url: string | null;
-  active: boolean;
+  status: PlayerStatus;
+  badge: PlayerBadge | null;
   appearances: number;
   goals: number;
   assists: number;

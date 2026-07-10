@@ -127,12 +127,14 @@ export async function getPlayerMatchHistory(playerId: string) {
   });
 }
 
-export async function getActivePlayers() {
+// Players available to be picked for a match — everyone except those
+// marked inactive (regular + irregular).
+export async function getSelectablePlayers() {
   const supabase = await createClient();
   const { data } = await supabase
     .from("players")
     .select("*")
-    .eq("active", true)
+    .neq("status", "inactive")
     .order("name", { ascending: true });
 
   return data ?? [];

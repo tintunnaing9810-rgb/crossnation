@@ -2,6 +2,8 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { updatePlayer } from "../actions";
 import { SectionHeading } from "@/components/ui";
+import { PLAYER_BADGES } from "@/lib/badges";
+import { PLAYER_STATUSES } from "@/lib/types";
 import type { Player } from "@/lib/types";
 
 export default async function EditPlayerPage({
@@ -52,6 +54,37 @@ export default async function EditPlayerPage({
               defaultValue={player.jersey_number ?? ""}
               className="w-full bg-surface-2 border border-line rounded px-3 py-2"
             />
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="block text-xs uppercase tracking-wide text-muted mb-1.5">Status</label>
+            <select
+              name="status"
+              defaultValue={player.status}
+              className="w-full bg-surface-2 border border-line rounded px-3 py-2"
+            >
+              {PLAYER_STATUSES.map((s) => (
+                <option key={s.value} value={s.value}>
+                  {s.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs uppercase tracking-wide text-muted mb-1.5">Badge</label>
+            <select
+              name="badge"
+              defaultValue={player.badge ?? ""}
+              className="w-full bg-surface-2 border border-line rounded px-3 py-2"
+            >
+              <option value="">No badge</option>
+              {PLAYER_BADGES.map((b) => (
+                <option key={b.key} value={b.key}>
+                  {b.name} — {b.honors}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
         <div>

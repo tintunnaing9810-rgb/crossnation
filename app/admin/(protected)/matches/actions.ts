@@ -6,16 +6,26 @@ import { createClient } from "@/lib/supabase/server";
 
 export async function createMatch(formData: FormData) {
   const supabase = await createClient();
-  const opponent = String(formData.get("opponent") ?? "").trim();
+  const match_type =
+    String(formData.get("match_type") ?? "internal") === "friendly"
+      ? "friendly"
+      : "internal";
+  let opponent = String(formData.get("opponent") ?? "").trim();
   const match_date = String(formData.get("match_date") ?? "");
   const venue = String(formData.get("venue") ?? "").trim() || null;
   const home_away = String(formData.get("home_away") ?? "home");
 
-  if (!opponent || !match_date) return;
+  // A friendly needs a named opponent; an internal match day can be
+  // logged without a label and gets a sensible default.
+  if (!opponent) {
+    if (match_type === "friendly") return;
+    opponent = "Internal match day";
+  }
+  if (!match_date) return;
 
   const { data, error } = await supabase
     .from("matches")
-    .insert({ opponent, match_date, venue, home_away, status: "upcoming" })
+    .insert({ opponent, match_type, match_date, venue, home_away, status: "upcoming" })
     .select("id")
     .single();
 
@@ -48,7 +58,7 @@ export async function setSquad(matchId: string, formData: FormData) {
   const { data: activePlayers } = await supabase
     .from("players")
     .select("id")
-    .eq("active", true);
+    .neq("status", "inactive");
 
   const rows = (activePlayers ?? []).map((p) => ({
     match_id: matchId,

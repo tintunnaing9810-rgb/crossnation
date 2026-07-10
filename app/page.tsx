@@ -5,7 +5,12 @@ import {
   getResults,
   getPlayerTotalsList,
 } from "@/lib/queries";
-import { formatMatchDate, formatMatchTime } from "@/lib/format";
+import {
+  formatMatchDate,
+  formatMatchTime,
+  matchTitle,
+  matchTypeLabel,
+} from "@/lib/format";
 import { EmptyState, SectionHeading, Badge } from "@/components/ui";
 import type { SquadEntryWithPlayer, StatsEntryWithPlayer } from "@/lib/types";
 
@@ -23,6 +28,12 @@ export default async function HomePage() {
   // full results archive lives on the Match Center, not a separate tab.
   const earlierResults = results.filter((m) => m.id !== latest?.match.id);
 
+  const latestScore = latest
+    ? latest.match.home_away === "away"
+      ? `${latest.match.away_score} - ${latest.match.home_score}`
+      : `${latest.match.home_score} - ${latest.match.away_score}`
+    : "";
+
   return (
     <div className="mx-auto max-w-5xl px-5 py-12 space-y-16">
       {/* HERO — upcoming match */}
@@ -33,7 +44,10 @@ export default async function HomePage() {
         {upcoming ? (
           <div className="wing-cut bg-surface border border-line p-6 sm:p-10">
             <div className="flex items-center justify-between flex-wrap gap-3 mb-6">
-              <Badge tone="gold">Next match</Badge>
+              <div className="flex items-center gap-2">
+                <Badge tone="gold">Next match</Badge>
+                <Badge>{matchTypeLabel(upcoming.match.match_type)}</Badge>
+              </div>
               <span className="text-sm text-muted">
                 {formatMatchDate(upcoming.match.match_date)} &middot;{" "}
                 {formatMatchTime(upcoming.match.match_date)}
@@ -42,10 +56,16 @@ export default async function HomePage() {
             <div className="flex items-end justify-between flex-wrap gap-6">
               <div>
                 <h1 className="font-display text-3xl sm:text-5xl font-semibold uppercase leading-none">
-                  CrossNation
-                  <span className="block text-muted text-xl sm:text-2xl mt-2 normal-case">
-                    vs {upcoming.match.opponent}
-                  </span>
+                  {upcoming.match.match_type === "friendly" ? (
+                    <>
+                      CrossNation
+                      <span className="block text-muted text-xl sm:text-2xl mt-2 normal-case">
+                        vs {upcoming.match.opponent}
+                      </span>
+                    </>
+                  ) : (
+                    upcoming.match.opponent
+                  )}
                 </h1>
                 {upcoming.match.venue && (
                   <p className="text-sm text-muted mt-3">
@@ -94,13 +114,18 @@ export default async function HomePage() {
                   {formatMatchDate(latest.match.match_date)}
                 </p>
                 <p className="font-display text-2xl sm:text-3xl font-semibold uppercase">
-                  CrossNation{" "}
-                  <span className="text-gold">
-                    {latest.match.home_away === "away"
-                      ? `${latest.match.away_score} - ${latest.match.home_score}`
-                      : `${latest.match.home_score} - ${latest.match.away_score}`}
-                  </span>{" "}
-                  {latest.match.opponent}
+                  {latest.match.match_type === "friendly" ? (
+                    <>
+                      CrossNation{" "}
+                      <span className="text-gold">{latestScore}</span>{" "}
+                      {latest.match.opponent}
+                    </>
+                  ) : (
+                    <>
+                      {latest.match.opponent}{" "}
+                      <span className="text-gold">{latestScore}</span>
+                    </>
+                  )}
                 </p>
               </div>
               <Link
@@ -150,7 +175,7 @@ export default async function HomePage() {
                     {formatMatchDate(m.match_date)}
                   </p>
                   <p className="font-display text-lg font-semibold uppercase">
-                    CrossNation vs {m.opponent}
+                    {matchTitle(m)}
                   </p>
                 </div>
                 <p className="font-display text-2xl font-semibold text-gold">

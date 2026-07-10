@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { SectionHeading, StatPill, Badge } from "@/components/ui";
+import { PLAYER_BADGES } from "@/lib/badges";
 
 export const metadata: Metadata = {
   title: "About — CrossNation Futsal Club",
@@ -7,29 +8,9 @@ export const metadata: Metadata = {
     "CrossNation FC — a futsal club founded in 2025 by young players from Myanmar. Two teams, twice a week, plus monthly friendlies against other clubs.",
 };
 
-// The Garuda crest motifs, decoded from the club badge.
-const BADGE = [
-  {
-    name: "Royal Garuda",
-    honors: "The King",
-    body: "The crown of the crest — carried by whoever leads the club on the day.",
-  },
-  {
-    name: "Garuda Ascendants",
-    honors: "The Enthusiast",
-    body: "For the players who show up twice a week, rain or shine, and lift everyone with them.",
-  },
-  {
-    name: "Garuda Shields",
-    honors: "The Fierce Walls",
-    body: "The defenders and the keeper — the back line that turns a close game our way.",
-  },
-  {
-    name: "Garuda Spirit",
-    honors: "The Rising Commander",
-    body: "For the player driving the team forward, setting the tempo from the middle.",
-  },
-];
+// The Garuda crest motifs, decoded from the club badge (shared with the
+// squad + admin badge picker via lib/badges).
+const BADGE = PLAYER_BADGES;
 
 export default function AboutPage() {
   return (

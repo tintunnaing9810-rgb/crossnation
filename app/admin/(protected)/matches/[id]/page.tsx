@@ -24,7 +24,7 @@ export default async function SetSquadPage({
   const { data: playersData } = await supabase
     .from("players")
     .select("*")
-    .eq("active", true)
+    .neq("status", "inactive")
     .order("name", { ascending: true });
   const players = (playersData ?? []) as Player[];
 

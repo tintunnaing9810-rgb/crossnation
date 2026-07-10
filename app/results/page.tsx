@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getResults } from "@/lib/queries";
-import { formatMatchDate } from "@/lib/format";
+import { formatMatchDate, matchTitle } from "@/lib/format";
 import { SectionHeading, EmptyState } from "@/components/ui";
 
 export default async function ResultsPage() {
@@ -25,7 +25,7 @@ export default async function ResultsPage() {
                   {formatMatchDate(m.match_date)}
                 </p>
                 <p className="font-display text-lg font-semibold uppercase">
-                  CrossNation vs {m.opponent}
+                  {matchTitle(m)}
                 </p>
               </div>
               <p className="font-display text-2xl font-semibold text-gold">

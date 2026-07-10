@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getMatchDetail } from "@/lib/queries";
-import { formatMatchDate } from "@/lib/format";
+import { formatMatchDate, matchTypeLabel } from "@/lib/format";
 import { SectionHeading, Badge, EmptyState } from "@/components/ui";
 import type { StatsEntryWithPlayer } from "@/lib/types";
 
@@ -20,19 +20,34 @@ export default async function MatchDetailPage({
     <div className="mx-auto max-w-5xl px-5 py-12 space-y-10">
       <div>
         <p className="text-xs uppercase tracking-[0.2em] text-lime mb-2">
-          {formatMatchDate(match.match_date)}
+          {matchTypeLabel(match.match_type)} · {formatMatchDate(match.match_date)}
           {match.venue ? ` · ${match.venue}` : ""}
         </p>
         <h1 className="font-display text-3xl sm:text-4xl font-semibold uppercase">
-          CrossNation{" "}
-          {match.status === "completed" && (
-            <span className="text-gold">
-              {match.home_away === "away"
-                ? `${match.away_score} - ${match.home_score}`
-                : `${match.home_score} - ${match.away_score}`}
-            </span>
-          )}{" "}
-          {match.opponent}
+          {match.match_type === "friendly" ? (
+            <>
+              CrossNation{" "}
+              {match.status === "completed" && (
+                <span className="text-gold">
+                  {match.home_away === "away"
+                    ? `${match.away_score} - ${match.home_score}`
+                    : `${match.home_score} - ${match.away_score}`}
+                </span>
+              )}{" "}
+              {match.opponent}
+            </>
+          ) : (
+            <>
+              {match.opponent}{" "}
+              {match.status === "completed" && (
+                <span className="text-gold">
+                  {match.home_away === "away"
+                    ? `${match.away_score} - ${match.home_score}`
+                    : `${match.home_score} - ${match.away_score}`}
+                </span>
+              )}
+            </>
+          )}
         </h1>
       </div>
 

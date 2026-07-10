@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { addPlayer, setPlayerActive } from "./actions";
+import { addPlayer, setPlayerStatus } from "./actions";
 import { SectionHeading, EmptyState, Badge } from "@/components/ui";
-import type { Player } from "@/lib/types";
+import { PlayerStatusControl } from "@/components/PlayerStatusControl";
+import { PLAYER_BADGES, badgeMeta } from "@/lib/badges";
+import type { Player, PlayerStatus } from "@/lib/types";
 
 export default async function AdminPlayersPage() {
   const supabase = await createClient();
@@ -50,6 +52,23 @@ export default async function AdminPlayersPage() {
             className="w-full bg-surface-2 border border-line rounded px-3 py-2"
           />
         </div>
+        <div className="sm:col-span-4">
+          <label className="block text-xs uppercase tracking-wide text-muted mb-1.5">
+            Badge (optional)
+          </label>
+          <select
+            name="badge"
+            defaultValue=""
+            className="w-full bg-surface-2 border border-line rounded px-3 py-2"
+          >
+            <option value="">No badge</option>
+            {PLAYER_BADGES.map((b) => (
+              <option key={b.key} value={b.key}>
+                {b.name} — {b.honors}
+              </option>
+            ))}
+          </select>
+        </div>
         <button
           type="submit"
           className="sm:col-span-4 bg-lime text-ink font-display font-semibold uppercase tracking-wide rounded py-2.5 hover:brightness-95 transition"
@@ -62,38 +81,47 @@ export default async function AdminPlayersPage() {
         <EmptyState>No players in the roster yet.</EmptyState>
       ) : (
         <div className="divide-y divide-line border border-line rounded-lg overflow-hidden">
-          {players.map((p) => (
-            <div
-              key={p.id}
-              className="flex items-center justify-between px-5 py-3 bg-surface flex-wrap gap-2"
-            >
-              <div className="flex items-center gap-3">
-                <span className="font-display font-semibold">{p.name}</span>
-                <span className="text-xs text-muted">
-                  {p.position ?? "—"} {p.jersey_number != null ? `#${p.jersey_number}` : ""}
-                </span>
-                {!p.active && <Badge>Inactive</Badge>}
+          {players.map((p) => {
+            const badge = badgeMeta(p.badge);
+            return (
+              <div
+                key={p.id}
+                className="flex items-center justify-between px-5 py-3 bg-surface flex-wrap gap-2"
+              >
+                <div className="flex items-center gap-3 flex-wrap">
+                  <span className="font-display font-semibold">{p.name}</span>
+                  <span className="text-xs text-muted">
+                    {p.position ?? "—"}{" "}
+                    {p.jersey_number != null ? `#${p.jersey_number}` : ""}
+                  </span>
+                  {badge && <Badge tone="gold">{badge.name}</Badge>}
+                  {p.status === "inactive" && <Badge>Inactive</Badge>}
+                  {p.status === "irregular" && <Badge>Irregular</Badge>}
+                </div>
+                <div className="flex items-center gap-3 text-sm">
+                  <Link
+                    href={`/admin/players/${p.id}`}
+                    className="text-lime hover:underline"
+                  >
+                    Edit
+                  </Link>
+                  <PlayerStatusControl
+                    current={p.status}
+                    action={async (formData) => {
+                      "use server";
+                      const raw = String(formData.get("status") ?? "regular");
+                      const status = (
+                        ["regular", "irregular", "inactive"].includes(raw)
+                          ? raw
+                          : "regular"
+                      ) as PlayerStatus;
+                      await setPlayerStatus(p.id, status);
+                    }}
+                  />
+                </div>
               </div>
-              <div className="flex items-center gap-3 text-sm">
-                <Link
-                  href={`/admin/players/${p.id}`}
-                  className="text-lime hover:underline"
-                >
-                  Edit
-                </Link>
-                <form
-                  action={async () => {
-                    "use server";
-                    await setPlayerActive(p.id, !p.active);
-                  }}
-                >
-                  <button type="submit" className="text-muted hover:text-paper transition-colors">
-                    {p.active ? "Mark inactive" : "Reactivate"}
-                  </button>
-                </form>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

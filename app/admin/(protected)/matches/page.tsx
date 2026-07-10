@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { formatMatchDate } from "@/lib/format";
+import { formatMatchDate, matchTitle, matchTypeLabel } from "@/lib/format";
 import { SectionHeading, EmptyState, Badge } from "@/components/ui";
 import { ConfirmSubmitButton } from "@/components/ConfirmSubmitButton";
 import { deleteMatch } from "./actions";
@@ -40,8 +40,10 @@ export default async function AdminMatchesPage() {
             {upcoming.map((m) => (
               <div key={m.id} className="flex items-center justify-between px-5 py-4 bg-surface flex-wrap gap-2">
                 <div>
-                  <p className="text-xs text-muted">{formatMatchDate(m.match_date)}</p>
-                  <p className="font-display font-semibold">vs {m.opponent}</p>
+                  <p className="text-xs text-muted">
+                    {formatMatchDate(m.match_date)} &middot; {matchTypeLabel(m.match_type)}
+                  </p>
+                  <p className="font-display font-semibold">{matchTitle(m)}</p>
                 </div>
                 <div className="flex items-center gap-4 text-sm">
                   <Link href={`/admin/matches/${m.id}`} className="text-lime hover:underline">
@@ -76,8 +78,10 @@ export default async function AdminMatchesPage() {
             {completed.map((m) => (
               <div key={m.id} className="flex items-center justify-between px-5 py-4 bg-surface flex-wrap gap-2">
                 <div>
-                  <p className="text-xs text-muted">{formatMatchDate(m.match_date)}</p>
-                  <p className="font-display font-semibold">vs {m.opponent}</p>
+                  <p className="text-xs text-muted">
+                    {formatMatchDate(m.match_date)} &middot; {matchTypeLabel(m.match_type)}
+                  </p>
+                  <p className="font-display font-semibold">{matchTitle(m)}</p>
                 </div>
                 <div className="flex items-center gap-4">
                   <Badge tone="gold">

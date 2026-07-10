@@ -14,7 +14,13 @@ create table if not exists players (
   jersey_number int,
   photo_url text,
   bio text,
-  active boolean not null default true,
+  -- regular = plays most weeks, irregular = occasional, inactive = no
+  -- longer playing (still shown on the public squad for history).
+  status text not null default 'regular'
+    check (status in ('regular','irregular','inactive')),
+  -- one of the four Garuda badges, or null.
+  badge text
+    check (badge in ('royal_garuda','garuda_ascendants','garuda_shields','garuda_spirit')),
   created_at timestamptz not null default now()
 );
 
@@ -24,6 +30,9 @@ create table if not exists players (
 create table if not exists matches (
   id uuid primary key default gen_random_uuid(),
   opponent text not null,
+  -- internal = two-team CrossNation match day, friendly = vs another club.
+  match_type text not null default 'internal'
+    check (match_type in ('internal','friendly')),
   match_date timestamptz not null,
   venue text,
   home_away text not null default 'home' check (home_away in ('home','away','neutral')),
@@ -76,7 +85,8 @@ select
   p.position,
   p.jersey_number,
   p.photo_url,
-  p.active,
+  p.status,
+  p.badge,
   count(ms.match_id) as appearances,
   coalesce(sum(ms.goals), 0) as goals,
   coalesce(sum(ms.assists), 0) as assists,
@@ -87,7 +97,7 @@ select
 from players p
 left join match_stats ms on ms.player_id = p.id
 left join matches m on m.id = ms.match_id and m.status = 'completed'
-group by p.id, p.name, p.position, p.jersey_number, p.photo_url, p.active;
+group by p.id, p.name, p.position, p.jersey_number, p.photo_url, p.status, p.badge;
 
 -- ============================================================
 -- JOIN REQUESTS  (public "interested in joining" form submissions —

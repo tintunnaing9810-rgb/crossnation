@@ -16,6 +16,19 @@ export function formatMatchTime(iso: string) {
   }).format(d);
 }
 
+// How a match is titled depending on its type. A friendly reads
+// "CrossNation vs <club>"; an internal match day just shows the label
+// the admin gave the two teams (e.g. "Whites vs Blacks").
+export function matchTitle(m: { match_type: string; opponent: string }) {
+  return m.match_type === "friendly"
+    ? `CrossNation vs ${m.opponent}`
+    : m.opponent;
+}
+
+export function matchTypeLabel(matchType: string) {
+  return matchType === "friendly" ? "Friendly" : "Internal";
+}
+
 export function formatDateInput(iso: string) {
   // yyyy-MM-ddThh:mm, for pre-filling <input type="datetime-local">
   const d = new Date(iso);
