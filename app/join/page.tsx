@@ -3,8 +3,8 @@ import { SectionHeading } from "@/components/ui";
 
 const REASONS = [
   {
-    title: "Real matches, every week",
-    body: "No off-season. CrossNation plays and tracks every match, so your appearances and goals actually add up to something.",
+    title: "Futsal every Saturday",
+    body: "20 to 25 of us split into two teams and play every match day — plus friendlies against other clubs about once a month. No off-season.",
   },
   {
     title: "Your stats, in public",
