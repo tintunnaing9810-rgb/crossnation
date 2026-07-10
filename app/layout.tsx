@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Oswald, Inter } from "next/font/google";
 import Link from "next/link";
 import { NavLinks } from "@/components/NavLinks";
+import { SocialLinks } from "@/components/SocialLinks";
 import "./globals.css";
 
 const oswald = Oswald({
@@ -55,6 +56,7 @@ export default function RootLayout({
         <footer className="border-t border-line mt-16">
           <div className="mx-auto max-w-5xl px-5 py-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-sm text-muted">
             <span>CrossNation Futsal Club &middot; Est. 2025</span>
+            <SocialLinks />
             <Link href="/admin/login" className="hover:text-paper transition-colors">
               Club login
             </Link>
