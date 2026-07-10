@@ -4,7 +4,7 @@ import { SectionHeading, StatPill, Badge } from "@/components/ui";
 export const metadata: Metadata = {
   title: "About — CrossNation Futsal Club",
   description:
-    "CrossNation FC — a Saturday futsal club founded in 2025 by young players from Myanmar. Two teams every match day, monthly friendlies against other clubs.",
+    "CrossNation FC — a futsal club founded in 2025 by young players from Myanmar. Two teams, twice a week, plus monthly friendlies against other clubs.",
 };
 
 // The Garuda crest motifs, decoded from the club badge.
@@ -17,7 +17,7 @@ const BADGE = [
   {
     name: "Garuda Ascendants",
     honors: "The Enthusiast",
-    body: "For the players who show up every Saturday, rain or shine, and lift everyone with them.",
+    body: "For the players who show up twice a week, rain or shine, and lift everyone with them.",
   },
   {
     name: "Garuda Shields",
@@ -42,15 +42,15 @@ export default function AboutPage() {
         <h1 className="font-display text-4xl sm:text-6xl font-semibold uppercase leading-[0.95] max-w-3xl">
           CrossNation F.C
           <span className="block text-muted text-xl sm:text-2xl mt-3 normal-case">
-            A Saturday futsal club, built to last longer than one match.
+            A futsal club, built to last longer than one match.
           </span>
         </h1>
         <p className="text-muted mt-6 max-w-2xl leading-relaxed">
           CrossNation Futsal Club was established in April 2025, founded by
           young players from Myanmar and joined, from time to time, by
           international players passing through. What started as a standing
-          Saturday game has grown into a proper club — a badge, a squad, and a
-          record of every match we play.
+          weekly game has grown into a proper club that now plays twice a week —
+          a badge, a squad, and a record of every match we play.
         </p>
       </section>
 
@@ -58,7 +58,7 @@ export default function AboutPage() {
       <section className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <StatPill label="Established" value="2025" />
         <StatPill label="Players" value="20–25" />
-        <StatPill label="Match day" value="Every Sat" />
+        <StatPill label="Matches" value="2 / week" />
         <StatPill label="Friendlies" value="Monthly" />
       </section>
 
@@ -67,13 +67,13 @@ export default function AboutPage() {
         <SectionHeading eyebrow="Match day" title="How we play" />
         <div className="grid sm:grid-cols-2 gap-4">
           <div className="wing-cut bg-surface border border-line p-6">
-            <Badge tone="lime">Every Saturday</Badge>
+            <Badge tone="lime">Twice a week</Badge>
             <h3 className="font-display text-xl font-semibold uppercase mt-4 mb-2">
               Two teams, one club
             </h3>
             <p className="text-sm text-muted leading-relaxed">
-              With 20 to 25 players on the books, every match day we split into
-              two sides and play each other. It keeps everyone on the court,
+              With 20 to 25 players on the books, we play twice a week and split
+              into two sides each match day. It keeps everyone on the court,
               competitive, and getting real minutes — no bench warming, no
               off-season.
             </p>
@@ -127,7 +127,7 @@ export default function AboutPage() {
           Est. April 2025
         </p>
         <p className="font-display text-2xl sm:text-3xl font-semibold uppercase leading-snug max-w-2xl">
-          One club, one badge, and a growing history — a Saturday at a time.
+          One club, one badge, and a growing history — a match at a time.
         </p>
       </section>
     </div>

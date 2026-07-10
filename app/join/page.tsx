@@ -3,8 +3,8 @@ import { SectionHeading } from "@/components/ui";
 
 const REASONS = [
   {
-    title: "Futsal every Saturday",
-    body: "20 to 25 of us split into two teams and play every match day — plus friendlies against other clubs about once a month. No off-season.",
+    title: "Two matches every week",
+    body: "20 to 25 of us split into two teams and play twice a week — plus friendlies against other clubs about once a month. No off-season.",
   },
   {
     title: "Your stats, in public",
@@ -12,7 +12,7 @@ const REASONS = [
   },
   {
     title: "A club, not a pickup game",
-    body: "Squads, positions, a badge, a history. CrossNation is building something that outlasts one Saturday.",
+    body: "Squads, positions, a badge, a history. CrossNation is building something that outlasts one match.",
   },
 ];
 
