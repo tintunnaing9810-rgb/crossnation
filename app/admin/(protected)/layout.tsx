@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { logout } from "@/app/admin/login/actions";
+import { NavLinks } from "@/components/NavLinks";
 
 const ADMIN_LINKS = [
   { href: "/admin", label: "Dashboard" },
@@ -23,11 +24,7 @@ export default async function AdminLayout({
       <div className="border-b border-line bg-surface">
         <div className="mx-auto max-w-5xl px-5 h-14 flex items-center justify-between">
           <nav className="flex items-center gap-5 text-sm font-display uppercase tracking-wide">
-            {ADMIN_LINKS.map((l) => (
-              <Link key={l.href} href={l.href} className="text-muted hover:text-paper transition-colors">
-                {l.label}
-              </Link>
-            ))}
+            <NavLinks links={ADMIN_LINKS} />
           </nav>
           <div className="flex items-center gap-4 text-sm text-muted">
             <span className="hidden sm:inline">{user?.email}</span>

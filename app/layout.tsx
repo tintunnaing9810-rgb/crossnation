@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Oswald, Inter } from "next/font/google";
 import Link from "next/link";
+import { NavLinks } from "@/components/NavLinks";
 import "./globals.css";
 
 const oswald = Oswald({
@@ -44,15 +45,7 @@ export default function RootLayout({
               CROSS<span className="text-lime">NATION</span>
             </Link>
             <nav className="flex items-center gap-6 text-sm font-display uppercase tracking-wide">
-              {NAV_LINKS.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className="text-muted hover:text-paper transition-colors"
-                >
-                  {link.label}
-                </Link>
-              ))}
+              <NavLinks links={NAV_LINKS} />
             </nav>
           </div>
         </header>
