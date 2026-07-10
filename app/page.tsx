@@ -1,17 +1,27 @@
 import Link from "next/link";
-import { getUpcomingMatch, getLatestResult, getPlayerTotalsList } from "@/lib/queries";
+import {
+  getUpcomingMatch,
+  getLatestResult,
+  getResults,
+  getPlayerTotalsList,
+} from "@/lib/queries";
 import { formatMatchDate, formatMatchTime } from "@/lib/format";
 import { EmptyState, SectionHeading, Badge } from "@/components/ui";
 import type { SquadEntryWithPlayer, StatsEntryWithPlayer } from "@/lib/types";
 
 export default async function HomePage() {
-  const [upcoming, latest, totals] = await Promise.all([
+  const [upcoming, latest, results, totals] = await Promise.all([
     getUpcomingMatch(),
     getLatestResult(),
+    getResults(),
     getPlayerTotalsList(),
   ]);
 
   const topScorer = totals.find((p) => p.goals > 0);
+
+  // The most recent result is featured above; list the rest here so the
+  // full results archive lives on the Match Center, not a separate tab.
+  const earlierResults = results.filter((m) => m.id !== latest?.match.id);
 
   return (
     <div className="mx-auto max-w-5xl px-5 py-12 space-y-16">
@@ -123,6 +133,36 @@ export default async function HomePage() {
           <EmptyState>No results logged yet.</EmptyState>
         )}
       </section>
+
+      {/* RESULTS ARCHIVE — everything except the featured latest result */}
+      {earlierResults.length > 0 && (
+        <section>
+          <SectionHeading eyebrow="Archive" title="Earlier Results" />
+          <div className="divide-y divide-line border border-line rounded-lg overflow-hidden">
+            {earlierResults.map((m) => (
+              <Link
+                href={`/results/${m.id}`}
+                key={m.id}
+                className="flex items-center justify-between px-5 py-4 bg-surface hover:bg-surface-2 transition-colors"
+              >
+                <div>
+                  <p className="text-xs text-muted mb-1">
+                    {formatMatchDate(m.match_date)}
+                  </p>
+                  <p className="font-display text-lg font-semibold uppercase">
+                    CrossNation vs {m.opponent}
+                  </p>
+                </div>
+                <p className="font-display text-2xl font-semibold text-gold">
+                  {m.home_away === "away"
+                    ? `${m.away_score} - ${m.home_score}`
+                    : `${m.home_score} - ${m.away_score}`}
+                </p>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* QUICK STAT TEASER */}
       {topScorer && (
