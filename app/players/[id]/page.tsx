@@ -36,13 +36,12 @@ export default async function PlayerProfilePage({
         <span className="tri-bar mt-3" />
       </div>
 
-      <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
+      <div className="grid grid-cols-3 sm:grid-cols-5 gap-3">
         <StatPill label="Apps" value={totals.appearances} />
         <StatPill label="Goals" value={totals.goals} />
         <StatPill label="Assists" value={totals.assists} />
         <StatPill label="MOTM" value={totals.motm_count} />
         <StatPill label="Clean sheets" value={totals.clean_sheets} />
-        <StatPill label="Yellow / Red" value={`${totals.yellow_cards}/${totals.red_cards}`} />
       </div>
 
       <section>
@@ -72,8 +71,6 @@ export default async function PlayerProfilePage({
                   {h.goals > 0 && <Badge tone="lime">{h.goals}⚽</Badge>}
                   {h.assists > 0 && <Badge>{h.assists} assist{h.assists > 1 ? "s" : ""}</Badge>}
                   {h.clean_sheet && <Badge>Clean sheet</Badge>}
-                  {h.yellow_cards > 0 && <Badge>{h.yellow_cards}🟨</Badge>}
-                  {h.red_cards > 0 && <Badge>{h.red_cards}🟥</Badge>}
                 </div>
               </Link>
             ))}

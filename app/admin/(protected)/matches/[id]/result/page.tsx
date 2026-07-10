@@ -2,9 +2,14 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { recordResult } from "../../actions";
 import { SectionHeading, EmptyState } from "@/components/ui";
-import type { SquadEntryWithPlayer } from "@/lib/types";
-import { formatMatchDate } from "@/lib/format";
-import type { Match } from "@/lib/types";
+import { formatMatchDate, matchTitle } from "@/lib/format";
+import type { Match, SquadEntryWithPlayer } from "@/lib/types";
+
+// A player counts as a goalkeeper (clean sheets only apply to them) if
+// their position mentions GK / goal / keeper.
+function isGoalkeeper(position: string | null | undefined) {
+  return /gk|goal|keeper/i.test(position ?? "");
+}
 
 export default async function RecordResultPage({
   params,
@@ -22,6 +27,8 @@ export default async function RecordResultPage({
   const match = matchData as Match | null;
   if (!match) notFound();
 
+  const isFriendly = match.match_type === "friendly";
+
   const { data: squadData } = await supabase
     .from("match_squad")
     .select("player_id, players(id, name, position)")
@@ -38,14 +45,17 @@ export default async function RecordResultPage({
   const statsByPlayer = new Map(
     (existingStats ?? []).map((s) => [s.player_id, s])
   );
+  const currentMotm = (existingStats ?? []).find((s) => s.motm)?.player_id ?? "";
 
   const recordResultWithId = recordResult.bind(null, id);
 
   return (
     <div className="max-w-2xl space-y-8">
       <SectionHeading
-        eyebrow={formatMatchDate(match.match_date)}
-        title={`Result vs ${match.opponent}`}
+        eyebrow={`${formatMatchDate(match.match_date)} · ${
+          isFriendly ? "Friendly" : "Internal match day"
+        }`}
+        title={`Result — ${matchTitle(match)}`}
       />
 
       {squad.length === 0 ? (
@@ -55,100 +65,121 @@ export default async function RecordResultPage({
         </EmptyState>
       ) : (
         <form action={recordResultWithId} className="space-y-6">
-          <div className="bg-surface border border-line rounded-lg p-5 flex items-center gap-4">
-            <div className="flex-1">
-              <label className="block text-xs uppercase tracking-wide text-muted mb-1.5">
-                CrossNation score
-              </label>
-              <input
-                name="home_score"
-                type="number"
-                min={0}
-                defaultValue={match.home_score ?? 0}
-                required
-                className="w-full bg-surface-2 border border-line rounded px-3 py-2"
-              />
-            </div>
-            <span className="font-display text-xl text-muted pt-5">–</span>
-            <div className="flex-1">
-              <label className="block text-xs uppercase tracking-wide text-muted mb-1.5">
-                {match.opponent} score
-              </label>
-              <input
-                name="away_score"
-                type="number"
-                min={0}
-                defaultValue={match.away_score ?? 0}
-                required
-                className="w-full bg-surface-2 border border-line rounded px-3 py-2"
-              />
+          {/* SCORE — labelled differently for friendly vs internal */}
+          <div className="bg-surface border border-line rounded-lg p-5">
+            <p className="text-xs uppercase tracking-wide text-muted mb-3">
+              {isFriendly ? "Final score" : "Match-day score — your two teams"}
+            </p>
+            <div className="flex items-center gap-4">
+              <div className="flex-1">
+                <label className="block text-xs uppercase tracking-wide text-muted mb-1.5">
+                  {isFriendly ? "CrossNation" : "Team A"}
+                </label>
+                <input
+                  name="home_score"
+                  type="number"
+                  min={0}
+                  defaultValue={match.home_score ?? 0}
+                  required
+                  className="w-full bg-surface-2 border border-line rounded px-3 py-2"
+                />
+              </div>
+              <span className="font-display text-xl text-muted pt-5">–</span>
+              <div className="flex-1">
+                <label className="block text-xs uppercase tracking-wide text-muted mb-1.5">
+                  {isFriendly ? match.opponent : "Team B"}
+                </label>
+                <input
+                  name="away_score"
+                  type="number"
+                  min={0}
+                  defaultValue={match.away_score ?? 0}
+                  required
+                  className="w-full bg-surface-2 border border-line rounded px-3 py-2"
+                />
+              </div>
             </div>
           </div>
 
-          <div className="bg-surface border border-line rounded-lg divide-y divide-line">
-            <div className="grid grid-cols-[1fr_repeat(5,3.2rem)_auto] gap-2 px-4 py-2 text-[11px] uppercase tracking-wide text-muted">
-              <span>Player</span>
-              <span className="text-center">Gls</span>
-              <span className="text-center">Ast</span>
-              <span className="text-center">🟨</span>
-              <span className="text-center">🟥</span>
-              <span className="text-center">CS</span>
-              <span>MOTM</span>
+          {/* PER-PLAYER STATS — full names, goals + assists, GK clean sheet */}
+          <div>
+            <p className="text-xs uppercase tracking-wide text-muted mb-2">
+              Player stats
+            </p>
+            <div className="bg-surface border border-line rounded-lg divide-y divide-line">
+              {squad.map((s: SquadEntryWithPlayer) => {
+                const existing = statsByPlayer.get(s.player_id);
+                const gk = isGoalkeeper(s.players?.position);
+                return (
+                  <div key={s.player_id} className="px-4 py-3">
+                    <div className="font-display font-semibold">
+                      {s.players?.name}
+                      {s.players?.position && (
+                        <span className="text-xs text-muted ml-2 uppercase tracking-wide">
+                          {s.players.position}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex flex-wrap items-end gap-4 mt-2">
+                      <label className="text-xs text-muted">
+                        <span className="block mb-1 uppercase tracking-wide">
+                          Goals
+                        </span>
+                        <input
+                          type="number"
+                          min={0}
+                          name={`goals_${s.player_id}`}
+                          defaultValue={existing?.goals ?? 0}
+                          className="w-20 bg-surface-2 border border-line rounded px-2 py-1.5 text-center text-paper"
+                        />
+                      </label>
+                      <label className="text-xs text-muted">
+                        <span className="block mb-1 uppercase tracking-wide">
+                          Assists
+                        </span>
+                        <input
+                          type="number"
+                          min={0}
+                          name={`assists_${s.player_id}`}
+                          defaultValue={existing?.assists ?? 0}
+                          className="w-20 bg-surface-2 border border-line rounded px-2 py-1.5 text-center text-paper"
+                        />
+                      </label>
+                      {gk && (
+                        <label className="flex items-center gap-2 text-sm pb-1.5">
+                          <input
+                            type="checkbox"
+                            name={`clean_sheet_${s.player_id}`}
+                            defaultChecked={existing?.clean_sheet ?? false}
+                            className="w-5 h-5 accent-lime"
+                          />
+                          Clean sheet
+                        </label>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-            {squad.map((s: SquadEntryWithPlayer) => {
-              const existing = statsByPlayer.get(s.player_id);
-              return (
-                <div
-                  key={s.player_id}
-                  className="grid grid-cols-[1fr_repeat(5,3.2rem)_auto] gap-2 px-4 py-2.5 items-center"
-                >
-                  <span className="text-sm truncate pr-2">{s.players?.name}</span>
-                  <input
-                    type="number"
-                    min={0}
-                    name={`goals_${s.player_id}`}
-                    defaultValue={existing?.goals ?? 0}
-                    className="w-full bg-surface-2 border border-line rounded px-2 py-1 text-center"
-                  />
-                  <input
-                    type="number"
-                    min={0}
-                    name={`assists_${s.player_id}`}
-                    defaultValue={existing?.assists ?? 0}
-                    className="w-full bg-surface-2 border border-line rounded px-2 py-1 text-center"
-                  />
-                  <input
-                    type="number"
-                    min={0}
-                    max={2}
-                    name={`yellow_${s.player_id}`}
-                    defaultValue={existing?.yellow_cards ?? 0}
-                    className="w-full bg-surface-2 border border-line rounded px-2 py-1 text-center"
-                  />
-                  <input
-                    type="number"
-                    min={0}
-                    max={1}
-                    name={`red_${s.player_id}`}
-                    defaultValue={existing?.red_cards ?? 0}
-                    className="w-full bg-surface-2 border border-line rounded px-2 py-1 text-center"
-                  />
-                  <input
-                    type="checkbox"
-                    name={`clean_sheet_${s.player_id}`}
-                    defaultChecked={existing?.clean_sheet ?? false}
-                    className="w-5 h-5 accent-lime justify-self-center"
-                  />
-                  <input
-                    type="radio"
-                    name="motm"
-                    value={s.player_id}
-                    defaultChecked={existing?.motm ?? false}
-                    className="w-5 h-5 accent-gold justify-self-center"
-                  />
-                </div>
-              );
-            })}
+          </div>
+
+          {/* MAN OF THE MATCH — a single choice, not a per-row control */}
+          <div className="bg-surface border border-line rounded-lg p-5">
+            <label className="block text-xs uppercase tracking-wide text-muted mb-1.5">
+              Man of the match
+            </label>
+            <select
+              name="motm"
+              defaultValue={currentMotm}
+              className="w-full bg-surface-2 border border-line rounded px-3 py-2"
+            >
+              <option value="">— none —</option>
+              {squad.map((s: SquadEntryWithPlayer) => (
+                <option key={s.player_id} value={s.player_id}>
+                  {s.players?.name}
+                </option>
+              ))}
+            </select>
           </div>
 
           <button

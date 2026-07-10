@@ -73,8 +73,6 @@ export default async function MatchDetailPage({
                     <Badge>{s.assists} assist{s.assists > 1 ? "s" : ""}</Badge>
                   )}
                   {s.clean_sheet && <Badge>Clean sheet</Badge>}
-                  {s.yellow_cards > 0 && <Badge>{s.yellow_cards}🟨</Badge>}
-                  {s.red_cards > 0 && <Badge>{s.red_cards}🟥</Badge>}
                 </div>
               </Link>
             ))}

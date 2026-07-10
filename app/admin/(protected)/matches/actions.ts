@@ -99,8 +99,6 @@ export async function recordResult(matchId: string, formData: FormData) {
     player_id: s.player_id,
     goals: Number(formData.get(`goals_${s.player_id}`) ?? 0) || 0,
     assists: Number(formData.get(`assists_${s.player_id}`) ?? 0) || 0,
-    yellow_cards: Number(formData.get(`yellow_${s.player_id}`) ?? 0) || 0,
-    red_cards: Number(formData.get(`red_${s.player_id}`) ?? 0) || 0,
     clean_sheet: formData.get(`clean_sheet_${s.player_id}`) === "on",
     motm: motmPlayerId === s.player_id,
   }));
