@@ -80,20 +80,22 @@ export async function deleteMatch(matchId: string) {
   revalidatePath("/results");
 }
 
-// Sets which players are announced for this match. Upserts one
-// match_squad row per active player so re-visiting this page later
-// shows the previous selection.
+// Sets which players are in the squad for this match. The form submits a
+// hidden `player_ids` field listing every player shown (an unchecked box
+// sends nothing, so we can't rely on the checkboxes alone). This lets the
+// squad be edited for any match — including old ones with players who
+// have since gone inactive.
 export async function setSquad(matchId: string, formData: FormData) {
   const supabase = await createClient();
-  const { data: activePlayers } = await supabase
-    .from("players")
-    .select("id")
-    .neq("status", "inactive");
+  const ids = String(formData.get("player_ids") ?? "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
 
-  const rows = (activePlayers ?? []).map((p) => ({
+  const rows = ids.map((id) => ({
     match_id: matchId,
-    player_id: p.id,
-    selected: formData.get(`selected_${p.id}`) === "on",
+    player_id: id,
+    selected: formData.get(`selected_${id}`) === "on",
     started: false,
   }));
 

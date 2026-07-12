@@ -95,6 +95,9 @@ export default async function AdminMatchesPage() {
                   <Link href={`/admin/matches/${m.id}/edit`} className="text-sm text-muted hover:text-paper transition-colors">
                     Edit
                   </Link>
+                  <Link href={`/admin/matches/${m.id}`} className="text-sm text-muted hover:text-paper transition-colors">
+                    Squad
+                  </Link>
                   <Link href={`/admin/matches/${m.id}/result`} className="text-sm text-gold hover:underline">
                     Result
                   </Link>

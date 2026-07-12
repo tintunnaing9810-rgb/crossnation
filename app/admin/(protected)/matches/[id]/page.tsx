@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { setSquad } from "../actions";
 import { SectionHeading } from "@/components/ui";
-import { formatMatchDate } from "@/lib/format";
+import { formatMatchDate, matchTitle } from "@/lib/format";
 import type { Match, Player } from "@/lib/types";
 
 export default async function SetSquadPage({
@@ -21,13 +21,6 @@ export default async function SetSquadPage({
   const match = matchData as Match | null;
   if (!match) notFound();
 
-  const { data: playersData } = await supabase
-    .from("players")
-    .select("*")
-    .neq("status", "inactive")
-    .order("name", { ascending: true });
-  const players = (playersData ?? []) as Player[];
-
   const { data: squadData } = await supabase
     .from("match_squad")
     .select("player_id, selected")
@@ -35,6 +28,21 @@ export default async function SetSquadPage({
   const selectedIds = new Set(
     (squadData ?? []).filter((s) => s.selected).map((s) => s.player_id)
   );
+  const inSquadIds = (squadData ?? []).map((s) => s.player_id);
+
+  // Selectable players (not inactive), plus anyone already in this match's
+  // squad even if they've since gone inactive — so old squads stay fully
+  // editable without losing a since-retired player from the list.
+  const { data: playersData } = await supabase
+    .from("players")
+    .select("*")
+    .or(
+      inSquadIds.length > 0
+        ? `status.neq.inactive,id.in.(${inSquadIds.join(",")})`
+        : "status.neq.inactive"
+    )
+    .order("name", { ascending: true });
+  const players = (playersData ?? []) as Player[];
 
   const setSquadWithId = setSquad.bind(null, id);
 
@@ -42,7 +50,7 @@ export default async function SetSquadPage({
     <div className="max-w-lg space-y-8">
       <SectionHeading
         eyebrow={formatMatchDate(match.match_date)}
-        title={`Squad vs ${match.opponent}`}
+        title={`Squad — ${matchTitle(match)}`}
       />
       {players.length === 0 ? (
         <p className="text-muted text-sm">
@@ -50,6 +58,11 @@ export default async function SetSquadPage({
         </p>
       ) : (
         <form action={setSquadWithId} className="bg-surface border border-line rounded-lg p-5 space-y-1">
+          <input
+            type="hidden"
+            name="player_ids"
+            value={players.map((p) => p.id).join(",")}
+          />
           {players.map((p) => (
             <label
               key={p.id}
