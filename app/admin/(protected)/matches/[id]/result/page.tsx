@@ -3,13 +3,8 @@ import { createClient } from "@/lib/supabase/server";
 import { recordResult } from "../../actions";
 import { SectionHeading, EmptyState } from "@/components/ui";
 import { formatMatchDate, matchTitle } from "@/lib/format";
+import { isGoalkeeper } from "@/lib/players";
 import type { Match, SquadEntryWithPlayer } from "@/lib/types";
-
-// A player counts as a goalkeeper (clean sheets only apply to them) if
-// their position mentions GK / goal / keeper.
-function isGoalkeeper(position: string | null | undefined) {
-  return /gk|goal|keeper/i.test(position ?? "");
-}
 
 export default async function RecordResultPage({
   params,

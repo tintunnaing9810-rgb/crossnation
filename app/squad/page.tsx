@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getPlayerTotalsList } from "@/lib/queries";
 import { SectionHeading, EmptyState, Badge } from "@/components/ui";
 import { badgeMeta } from "@/lib/badges";
+import { isGoalkeeper } from "@/lib/players";
 import type { PlayerStatus } from "@/lib/types";
 
 // Regulars first, then irregulars, then inactive players (kept visible
@@ -29,6 +30,7 @@ export default async function SquadPage() {
           {ordered.map((p) => {
             const badge = badgeMeta(p.badge);
             const inactive = p.status === "inactive";
+            const gk = isGoalkeeper(p.position);
             return (
               <Link
                 key={p.player_id}
@@ -57,16 +59,27 @@ export default async function SquadPage() {
                   </p>
                 </div>
 
-                {/* Stats */}
+                {/* Stats — goalkeepers show clean sheets instead of G/A */}
                 <div className="flex gap-3 text-xs shrink-0 tabular-nums">
-                  <span>
-                    <span className="text-lime font-semibold">{p.goals}</span>{" "}
-                    <span className="text-muted">G</span>
-                  </span>
-                  <span>
-                    <span className="text-lime font-semibold">{p.assists}</span>{" "}
-                    <span className="text-muted">A</span>
-                  </span>
+                  {gk ? (
+                    <span>
+                      <span className="text-lime font-semibold">
+                        {p.clean_sheets}
+                      </span>{" "}
+                      <span className="text-muted">CS</span>
+                    </span>
+                  ) : (
+                    <>
+                      <span>
+                        <span className="text-lime font-semibold">{p.goals}</span>{" "}
+                        <span className="text-muted">G</span>
+                      </span>
+                      <span>
+                        <span className="text-lime font-semibold">{p.assists}</span>{" "}
+                        <span className="text-muted">A</span>
+                      </span>
+                    </>
+                  )}
                   <span>
                     <span className="text-paper font-semibold">
                       {p.appearances}
