@@ -154,14 +154,14 @@ export async function getSquadRanking(): Promise<SquadRankingEntry[]> {
     }
   );
 
-  // Rank by the performance score (goals/assists/MOTM/clean sheets),
-  // tie-broken by the appearance+W/L points. Inactive players stay last.
+  // Rank by the appearance+W/L points (highest to lowest), tie-broken by
+  // the performance rating. Inactive players stay last.
   ranked.sort((a, b) => {
     const ra = a.status === "inactive" ? 1 : 0;
     const rb = b.status === "inactive" ? 1 : 0;
     if (ra !== rb) return ra - rb;
-    if (b.score !== a.score) return b.score - a.score;
     if (b.points !== a.points) return b.points - a.points;
+    if (b.score !== a.score) return b.score - a.score;
     return a.name.localeCompare(b.name);
   });
 

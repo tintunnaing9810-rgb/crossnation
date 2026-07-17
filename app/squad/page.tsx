@@ -14,20 +14,21 @@ export default async function SquadPage() {
 
       <div className="bg-surface border border-line rounded-lg p-4 mb-6 text-xs text-muted space-y-1.5">
         <p>
-          <span className="font-display font-semibold uppercase text-lime">
-            Rating
-          </span>{" "}
-          &mdash; individual contribution, and what the list is ranked by:
-          Goal &times;{PERFORMANCE_WEIGHTS.goal}, Assist &times;
-          {PERFORMANCE_WEIGHTS.assist}, MOTM &times;{PERFORMANCE_WEIGHTS.motm},
-          Clean sheet &times;{PERFORMANCE_WEIGHTS.cleanSheet}.
-        </p>
-        <p>
           <span className="font-display font-semibold uppercase text-paper">
             Pts
           </span>{" "}
-          &mdash; turning up &amp; results: Appearance +{POINTS.appearance}, Win
-          +{POINTS.win}, Draw +{POINTS.draw}, Loss +{POINTS.loss}.
+          &mdash; turning up &amp; results, and what the list is ranked by:
+          Appearance +{POINTS.appearance}, Win +{POINTS.win}, Draw +{POINTS.draw}
+          , Loss +{POINTS.loss}.
+        </p>
+        <p>
+          <span className="font-display font-semibold uppercase text-lime">
+            Rating
+          </span>{" "}
+          &mdash; individual contribution: Goal &times;{PERFORMANCE_WEIGHTS.goal},
+          Assist &times;{PERFORMANCE_WEIGHTS.assist}, MOTM &times;
+          {PERFORMANCE_WEIGHTS.motm}, Clean sheet &times;
+          {PERFORMANCE_WEIGHTS.cleanSheet}.
         </p>
       </div>
 
