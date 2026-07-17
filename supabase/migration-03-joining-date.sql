@@ -1,15 +1,16 @@
 -- ============================================================
 -- CrossNation — Migration 03
--- Adds a joining date to players, backfills every existing player to
--- 2026-07-07, and exposes it on the player_totals view.
+-- Adds a joining date to players, sets every existing player to
+-- 2026-07-01, and exposes it on the player_totals view.
 --
--- Run ONCE in the Supabase SQL Editor, after migration-02. Safe to re-run.
+-- Run in the Supabase SQL Editor, after migration-02. Safe to re-run —
+-- re-running resets all join dates to 1 July 2026.
 -- ============================================================
 
 alter table players add column if not exists joined_at date;
 
--- Backfill everyone currently on the roster to 7 July 2026.
-update players set joined_at = '2026-07-07' where joined_at is null;
+-- Set everyone currently on the roster to 1 July 2026.
+update players set joined_at = '2026-07-01';
 
 -- Re-expose the view with joined_at appended (create-or-replace keeps the
 -- existing columns/grants; the new column is added at the end).
