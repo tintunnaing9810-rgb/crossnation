@@ -3,6 +3,7 @@ import { getSquadRanking } from "@/lib/queries";
 import { SectionHeading, EmptyState, Badge } from "@/components/ui";
 import { badgeMeta } from "@/lib/badges";
 import { isGoalkeeper } from "@/lib/players";
+import { POINTS, PERFORMANCE_WEIGHTS } from "@/lib/points";
 
 export default async function SquadPage() {
   const players = await getSquadRanking();
@@ -10,6 +11,25 @@ export default async function SquadPage() {
   return (
     <div className="mx-auto max-w-5xl px-5 py-12">
       <SectionHeading eyebrow="The Club" title="Squad" />
+
+      <div className="bg-surface border border-line rounded-lg p-4 mb-6 text-xs text-muted space-y-1.5">
+        <p>
+          <span className="font-display font-semibold uppercase text-lime">
+            Rating
+          </span>{" "}
+          &mdash; individual contribution, and what the list is ranked by:
+          Goal &times;{PERFORMANCE_WEIGHTS.goal}, Assist &times;
+          {PERFORMANCE_WEIGHTS.assist}, MOTM &times;{PERFORMANCE_WEIGHTS.motm},
+          Clean sheet &times;{PERFORMANCE_WEIGHTS.cleanSheet}.
+        </p>
+        <p>
+          <span className="font-display font-semibold uppercase text-paper">
+            Pts
+          </span>{" "}
+          &mdash; turning up &amp; results: Appearance +{POINTS.appearance}, Win
+          +{POINTS.win}, Draw +{POINTS.draw}, Loss +{POINTS.loss}.
+        </p>
+      </div>
 
       {players.length === 0 ? (
         <EmptyState>No players added yet.</EmptyState>
