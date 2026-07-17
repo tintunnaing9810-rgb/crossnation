@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { formatMatchDate } from "@/lib/format";
+import { formatMatchDate, matchTitle, matchTypeLabel } from "@/lib/format";
 import { SectionHeading, EmptyState } from "@/components/ui";
 import type { JoinRequest, Match } from "@/lib/types";
 
@@ -33,9 +33,10 @@ export default async function AdminDashboardPage() {
           {upcoming ? (
             <>
               <p className="font-display text-xl font-semibold">
-                vs {upcoming.opponent}
+                {matchTitle(upcoming)}
               </p>
               <p className="text-sm text-muted mt-1">
+                {matchTypeLabel(upcoming.match_type)} &middot;{" "}
                 {formatMatchDate(upcoming.match_date)}
               </p>
               <Link
