@@ -21,6 +21,7 @@ create table if not exists players (
   -- one of the four Garuda badges, or null.
   badge text
     check (badge in ('royal_garuda','garuda_ascendants','garuda_shields','garuda_spirit')),
+  joined_at date,
   created_at timestamptz not null default now()
 );
 
@@ -95,11 +96,12 @@ select
   coalesce(sum(ms.yellow_cards), 0) as yellow_cards,
   coalesce(sum(ms.red_cards), 0) as red_cards,
   coalesce(sum(case when ms.clean_sheet then 1 else 0 end), 0) as clean_sheets,
-  coalesce(sum(case when ms.motm then 1 else 0 end), 0) as motm_count
+  coalesce(sum(case when ms.motm then 1 else 0 end), 0) as motm_count,
+  p.joined_at
 from players p
 left join match_stats ms on ms.player_id = p.id
 left join matches m on m.id = ms.match_id and m.status = 'completed'
-group by p.id, p.name, p.position, p.jersey_number, p.photo_url, p.status, p.badge;
+group by p.id, p.name, p.position, p.jersey_number, p.photo_url, p.status, p.badge, p.joined_at;
 
 -- ============================================================
 -- JOIN REQUESTS  (public "interested in joining" form submissions —

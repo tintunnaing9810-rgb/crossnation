@@ -8,6 +8,18 @@ export function formatMatchDate(iso: string) {
   }).format(d);
 }
 
+// A date-only value like "2026-07-07" → "7 Jul 2026". Parsed from its
+// parts so it never shifts a day due to timezone.
+export function formatDate(dateOnly: string) {
+  const [y, m, d] = dateOnly.split("-").map(Number);
+  const dt = new Date(y, (m ?? 1) - 1, d ?? 1);
+  return new Intl.DateTimeFormat("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  }).format(dt);
+}
+
 export function formatMatchTime(iso: string) {
   const d = new Date(iso);
   return new Intl.DateTimeFormat("en-GB", {

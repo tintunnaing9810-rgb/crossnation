@@ -30,12 +30,13 @@ export async function addPlayer(formData: FormData) {
   const jerseyRaw = String(formData.get("jersey_number") ?? "").trim();
   const jersey_number = jerseyRaw ? Number(jerseyRaw) : null;
   const badge = parseBadge(formData);
+  const joined_at = String(formData.get("joined_at") ?? "").trim() || null;
 
   if (!name) return;
 
   await supabase
     .from("players")
-    .insert({ name, position, jersey_number, badge });
+    .insert({ name, position, jersey_number, badge, joined_at });
   revalidatePath("/admin/players");
   revalidatePath("/squad");
 }
@@ -49,12 +50,13 @@ export async function updatePlayer(playerId: string, formData: FormData) {
   const bio = String(formData.get("bio") ?? "").trim() || null;
   const badge = parseBadge(formData);
   const status = parseStatus(formData);
+  const joined_at = String(formData.get("joined_at") ?? "").trim() || null;
 
   if (!name) return;
 
   await supabase
     .from("players")
-    .update({ name, position, jersey_number, bio, badge, status })
+    .update({ name, position, jersey_number, bio, badge, status, joined_at })
     .eq("id", playerId);
 
   revalidatePath("/admin/players");

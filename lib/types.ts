@@ -19,6 +19,7 @@ export type Player = {
   bio: string | null;
   status: PlayerStatus;
   badge: PlayerBadge | null;
+  joined_at: string | null;
   created_at: string;
 };
 
@@ -90,6 +91,7 @@ export type PlayerTotals = {
   red_cards: number;
   clean_sheets: number;
   motm_count: number;
+  joined_at: string | null;
 };
 
 // A player row for the points-ranked squad table: their totals plus the

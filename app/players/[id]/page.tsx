@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { getPlayerTotals, getPlayerMatchHistory } from "@/lib/queries";
-import { formatMatchDate } from "@/lib/format";
+import { getSquadRanking, getPlayerMatchHistory } from "@/lib/queries";
+import { formatMatchDate, formatDate } from "@/lib/format";
 import { StatPill, SectionHeading, EmptyState, Badge } from "@/components/ui";
 import { badgeMeta } from "@/lib/badges";
 import type { StatsEntryWithMatch } from "@/lib/types";
@@ -12,8 +12,14 @@ export default async function PlayerProfilePage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const totals = await getPlayerTotals(id);
-  if (!totals) notFound();
+
+  // Pull from the ranked squad so we have the player's points, rating and
+  // their rank position, all consistent with the /squad table.
+  const ranking = await getSquadRanking();
+  const rankIndex = ranking.findIndex((r) => r.player_id === id);
+  if (rankIndex === -1) notFound();
+  const totals = ranking[rankIndex];
+  const rank = rankIndex + 1;
 
   const history = await getPlayerMatchHistory(id);
   const badge = badgeMeta(totals.badge);
@@ -33,7 +39,19 @@ export default async function PlayerProfilePage({
           {totals.status === "inactive" && <Badge>Inactive</Badge>}
           {totals.status === "irregular" && <Badge>Irregular</Badge>}
         </div>
+        {totals.joined_at && (
+          <p className="text-sm text-muted mt-3">
+            Joined {formatDate(totals.joined_at)}
+          </p>
+        )}
         <span className="tri-bar mt-3" />
+      </div>
+
+      {/* Ranking headline: squad rank, points, rating */}
+      <div className="grid grid-cols-3 gap-3">
+        <StatPill label="Squad rank" value={`#${rank}`} />
+        <StatPill label="Pts" value={totals.points} />
+        <StatPill label="Rating" value={totals.score} />
       </div>
 
       <div className="grid grid-cols-3 sm:grid-cols-5 gap-3">

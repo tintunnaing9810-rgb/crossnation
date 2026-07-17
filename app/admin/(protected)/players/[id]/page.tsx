@@ -88,6 +88,15 @@ export default async function EditPlayerPage({
           </div>
         </div>
         <div>
+          <label className="block text-xs uppercase tracking-wide text-muted mb-1.5">Joined</label>
+          <input
+            name="joined_at"
+            type="date"
+            defaultValue={player.joined_at ?? ""}
+            className="w-full bg-surface-2 border border-line rounded px-3 py-2"
+          />
+        </div>
+        <div>
           <label className="block text-xs uppercase tracking-wide text-muted mb-1.5">Bio (optional)</label>
           <textarea
             name="bio"
