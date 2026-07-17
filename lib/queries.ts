@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { playerResult, pointsFor } from "@/lib/points";
+import { playerResult, pointsFor, performanceScore } from "@/lib/points";
 import type {
   Match,
   PlayerTotals,
@@ -149,16 +149,19 @@ export async function getSquadRanking(): Promise<SquadRankingEntry[]> {
         draws: t.draws,
         losses: t.losses,
         points: pointsFor(t.apps, t.wins, t.draws, t.losses),
+        score: performanceScore(p),
       };
     }
   );
 
+  // Rank by the performance score (goals/assists/MOTM/clean sheets),
+  // tie-broken by the appearance+W/L points. Inactive players stay last.
   ranked.sort((a, b) => {
     const ra = a.status === "inactive" ? 1 : 0;
     const rb = b.status === "inactive" ? 1 : 0;
     if (ra !== rb) return ra - rb;
+    if (b.score !== a.score) return b.score - a.score;
     if (b.points !== a.points) return b.points - a.points;
-    if (b.appearances !== a.appearances) return b.appearances - a.appearances;
     return a.name.localeCompare(b.name);
   });
 

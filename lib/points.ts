@@ -56,3 +56,26 @@ export function pointsFor(
     losses * POINTS.loss
   );
 }
+
+// A SEPARATE performance rating used to order the squad table. This is
+// NOT added to the points above — it's an individual-contribution score.
+export const PERFORMANCE_WEIGHTS = {
+  goal: 1,
+  assist: 0.5,
+  motm: 2,
+  cleanSheet: 1.5,
+} as const;
+
+export function performanceScore(t: {
+  goals: number;
+  assists: number;
+  motm_count: number;
+  clean_sheets: number;
+}) {
+  const raw =
+    t.goals * PERFORMANCE_WEIGHTS.goal +
+    t.assists * PERFORMANCE_WEIGHTS.assist +
+    t.motm_count * PERFORMANCE_WEIGHTS.motm +
+    t.clean_sheets * PERFORMANCE_WEIGHTS.cleanSheet;
+  return Math.round(raw * 10) / 10; // avoid float noise, keep 1 dp
+}

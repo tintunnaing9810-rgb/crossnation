@@ -52,13 +52,23 @@ export default async function SquadPage() {
                   </p>
                 </div>
 
-                {/* Points */}
-                <div className="text-right shrink-0">
-                  <div className="font-display text-lg font-semibold text-lime leading-none tabular-nums">
-                    {p.points}
+                {/* Rating (ranks the table) + Points */}
+                <div className="flex items-center gap-4 shrink-0 text-right tabular-nums">
+                  <div>
+                    <div className="font-display text-lg font-semibold text-lime leading-none">
+                      {p.score}
+                    </div>
+                    <div className="text-[10px] uppercase tracking-wide text-muted mt-0.5">
+                      Rating
+                    </div>
                   </div>
-                  <div className="text-[10px] uppercase tracking-wide text-muted mt-0.5">
-                    Pts
+                  <div>
+                    <div className="font-display text-sm font-semibold text-paper leading-none">
+                      {p.points}
+                    </div>
+                    <div className="text-[10px] uppercase tracking-wide text-muted mt-0.5">
+                      Pts
+                    </div>
                   </div>
                 </div>
               </Link>

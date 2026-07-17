@@ -99,4 +99,6 @@ export type SquadRankingEntry = PlayerTotals & {
   draws: number;
   losses: number;
   points: number;
+  // separate individual-contribution rating the squad table ranks by
+  score: number;
 };
