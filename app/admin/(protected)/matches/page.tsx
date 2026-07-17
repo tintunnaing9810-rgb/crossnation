@@ -88,9 +88,7 @@ export default async function AdminMatchesPage() {
                 </div>
                 <div className="flex items-center gap-4">
                   <Badge tone="gold">
-                    {m.home_away === "away"
-                      ? `${m.away_score} - ${m.home_score}`
-                      : `${m.home_score} - ${m.away_score}`}
+                    {m.home_score} - {m.away_score}
                   </Badge>
                   <Link href={`/admin/matches/${m.id}/edit`} className="text-sm text-muted hover:text-paper transition-colors">
                     Edit

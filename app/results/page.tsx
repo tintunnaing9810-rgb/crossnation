@@ -29,9 +29,7 @@ export default async function ResultsPage() {
                 </p>
               </div>
               <p className="font-display text-2xl font-semibold text-gold">
-                {m.home_away === "away"
-                  ? `${m.away_score} - ${m.home_score}`
-                  : `${m.home_score} - ${m.away_score}`}
+                {m.home_score} - {m.away_score}
               </p>
             </Link>
           ))}

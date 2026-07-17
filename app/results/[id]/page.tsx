@@ -29,9 +29,7 @@ export default async function MatchDetailPage({
               CrossNation{" "}
               {match.status === "completed" && (
                 <span className="text-gold">
-                  {match.home_away === "away"
-                    ? `${match.away_score} - ${match.home_score}`
-                    : `${match.home_score} - ${match.away_score}`}
+                  {match.home_score} - {match.away_score}
                 </span>
               )}{" "}
               {match.opponent}
@@ -41,9 +39,7 @@ export default async function MatchDetailPage({
               {match.opponent}{" "}
               {match.status === "completed" && (
                 <span className="text-gold">
-                  {match.home_away === "away"
-                    ? `${match.away_score} - ${match.home_score}`
-                    : `${match.home_score} - ${match.away_score}`}
+                  {match.home_score} - {match.away_score}
                 </span>
               )}
             </>

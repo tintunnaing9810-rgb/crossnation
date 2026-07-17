@@ -92,12 +92,35 @@ export async function setSquad(matchId: string, formData: FormData) {
     .map((s) => s.trim())
     .filter(Boolean);
 
-  const rows = ids.map((id) => ({
-    match_id: matchId,
-    player_id: id,
-    selected: formData.get(`selected_${id}`) === "on",
-    started: false,
-  }));
+  // Friendlies pick a single side (checkbox); internal match days split
+  // players onto Team A / Team B (a player with a team is "selected").
+  const { data: match } = await supabase
+    .from("matches")
+    .select("match_type")
+    .eq("id", matchId)
+    .maybeSingle();
+  const isFriendly = match?.match_type === "friendly";
+
+  const rows = ids.map((id) => {
+    if (isFriendly) {
+      return {
+        match_id: matchId,
+        player_id: id,
+        selected: formData.get(`selected_${id}`) === "on",
+        team: null,
+        started: false,
+      };
+    }
+    const raw = String(formData.get(`team_${id}`) ?? "");
+    const team = raw === "a" || raw === "b" ? raw : null;
+    return {
+      match_id: matchId,
+      player_id: id,
+      selected: team !== null,
+      team,
+      started: false,
+    };
+  });
 
   if (rows.length > 0) {
     await supabase

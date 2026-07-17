@@ -42,11 +42,14 @@ export type Match = {
   created_at: string;
 };
 
+export type MatchTeam = "a" | "b";
+
 export type MatchSquadEntry = {
   match_id: string;
   player_id: string;
   selected: boolean;
   started: boolean;
+  team: MatchTeam | null;
 };
 
 export type MatchStatsEntry = {
@@ -87,4 +90,13 @@ export type PlayerTotals = {
   red_cards: number;
   clean_sheets: number;
   motm_count: number;
+};
+
+// A player row for the points-ranked squad table: their totals plus the
+// computed win/draw/loss record and total points.
+export type SquadRankingEntry = PlayerTotals & {
+  wins: number;
+  draws: number;
+  losses: number;
+  points: number;
 };

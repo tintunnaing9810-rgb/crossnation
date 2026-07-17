@@ -29,9 +29,7 @@ export default async function HomePage() {
   const earlierResults = results.filter((m) => m.id !== latest?.match.id);
 
   const latestScore = latest
-    ? latest.match.home_away === "away"
-      ? `${latest.match.away_score} - ${latest.match.home_score}`
-      : `${latest.match.home_score} - ${latest.match.away_score}`
+    ? `${latest.match.home_score} - ${latest.match.away_score}`
     : "";
 
   return (
@@ -192,9 +190,7 @@ export default async function HomePage() {
                   </p>
                 </div>
                 <p className="font-display text-2xl font-semibold text-gold">
-                  {m.home_away === "away"
-                    ? `${m.away_score} - ${m.home_score}`
-                    : `${m.home_score} - ${m.away_score}`}
+                  {m.home_score} - {m.away_score}
                 </p>
               </Link>
             ))}

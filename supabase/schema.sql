@@ -53,6 +53,8 @@ create table if not exists match_squad (
   player_id uuid not null references players(id) on delete cascade,
   selected boolean not null default true,
   started boolean not null default false,
+  -- which internal side the player was on ('a'/'b'); null for friendlies.
+  team text check (team in ('a','b')),
   primary key (match_id, player_id)
 );
 

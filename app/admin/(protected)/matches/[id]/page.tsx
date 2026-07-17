@@ -21,12 +21,17 @@ export default async function SetSquadPage({
   const match = matchData as Match | null;
   if (!match) notFound();
 
+  const isFriendly = match.match_type === "friendly";
+
   const { data: squadData } = await supabase
     .from("match_squad")
-    .select("player_id, selected")
+    .select("player_id, selected, team")
     .eq("match_id", id);
   const selectedIds = new Set(
     (squadData ?? []).filter((s) => s.selected).map((s) => s.player_id)
+  );
+  const teamByPlayer = new Map(
+    (squadData ?? []).map((s) => [s.player_id, s.team as string | null])
   );
   const inSquadIds = (squadData ?? []).map((s) => s.player_id);
 
@@ -63,24 +68,44 @@ export default async function SetSquadPage({
             name="player_ids"
             value={players.map((p) => p.id).join(",")}
           />
+          {!isFriendly && (
+            <p className="text-xs text-muted pb-3">
+              Put each player on Team A or Team B — leave on “Out” to drop them
+              from the match day.
+            </p>
+          )}
           {players.map((p) => (
-            <label
+            <div
               key={p.id}
-              className="flex items-center justify-between py-2 border-b border-line last:border-0 cursor-pointer"
+              className="flex items-center justify-between gap-3 py-2 border-b border-line last:border-0"
             >
-              <span>
+              <span className="min-w-0 truncate">
                 {p.name}
                 <span className="text-muted text-xs ml-2">
                   {p.position ?? ""}
                 </span>
               </span>
-              <input
-                type="checkbox"
-                name={`selected_${p.id}`}
-                defaultChecked={selectedIds.has(p.id)}
-                className="w-5 h-5 accent-lime"
-              />
-            </label>
+              {isFriendly ? (
+                <input
+                  type="checkbox"
+                  name={`selected_${p.id}`}
+                  defaultChecked={selectedIds.has(p.id)}
+                  className="w-5 h-5 accent-lime shrink-0"
+                  aria-label={`Select ${p.name}`}
+                />
+              ) : (
+                <select
+                  name={`team_${p.id}`}
+                  defaultValue={teamByPlayer.get(p.id) ?? ""}
+                  className="bg-surface-2 border border-line rounded px-2 py-1 text-sm shrink-0"
+                  aria-label={`Team for ${p.name}`}
+                >
+                  <option value="">Out</option>
+                  <option value="a">Team A</option>
+                  <option value="b">Team B</option>
+                </select>
+              )}
+            </div>
           ))}
           <button
             type="submit"

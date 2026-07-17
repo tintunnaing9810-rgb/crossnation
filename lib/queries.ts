@@ -1,10 +1,12 @@
 import { createClient } from "@/lib/supabase/server";
+import { playerResult, pointsFor } from "@/lib/points";
 import type {
   Match,
   PlayerTotals,
   SquadEntryWithPlayer,
   StatsEntryWithPlayer,
   StatsEntryWithMatch,
+  SquadRankingEntry,
 } from "@/lib/types";
 
 export async function getUpcomingMatch() {
@@ -94,6 +96,73 @@ export async function getPlayerTotalsList() {
     .order("goals", { ascending: false });
 
   return (data ?? []) as PlayerTotals[];
+}
+
+// Players ranked by total points. Points come from appearances + each
+// match's win/draw/loss, computed here (not in the DB) so the scoring
+// weights in lib/points.ts are easy to tweak. Inactive players are kept
+// but sorted to the bottom.
+export async function getSquadRanking(): Promise<SquadRankingEntry[]> {
+  const supabase = await createClient();
+
+  const [{ data: totals }, { data: matches }, { data: squad }] =
+    await Promise.all([
+      supabase.from("player_totals").select("*"),
+      supabase
+        .from("matches")
+        .select("id, match_type, home_score, away_score")
+        .eq("status", "completed"),
+      supabase
+        .from("match_squad")
+        .select("player_id, match_id, team")
+        .eq("selected", true),
+    ]);
+
+  const matchById = new Map((matches ?? []).map((m) => [m.id, m]));
+
+  // Tally appearances + W/D/L per player across completed matches.
+  const tally = new Map<
+    string,
+    { apps: number; wins: number; draws: number; losses: number }
+  >();
+  for (const row of squad ?? []) {
+    const match = matchById.get(row.match_id);
+    if (!match) continue; // not a completed match
+    const t =
+      tally.get(row.player_id) ?? { apps: 0, wins: 0, draws: 0, losses: 0 };
+    t.apps += 1;
+    const result = playerResult(match as Match, row.team);
+    if (result === "win") t.wins += 1;
+    else if (result === "draw") t.draws += 1;
+    else if (result === "loss") t.losses += 1;
+    tally.set(row.player_id, t);
+  }
+
+  const ranked: SquadRankingEntry[] = ((totals ?? []) as PlayerTotals[]).map(
+    (p) => {
+      const t =
+        tally.get(p.player_id) ?? { apps: 0, wins: 0, draws: 0, losses: 0 };
+      return {
+        ...p,
+        appearances: t.apps,
+        wins: t.wins,
+        draws: t.draws,
+        losses: t.losses,
+        points: pointsFor(t.apps, t.wins, t.draws, t.losses),
+      };
+    }
+  );
+
+  ranked.sort((a, b) => {
+    const ra = a.status === "inactive" ? 1 : 0;
+    const rb = b.status === "inactive" ? 1 : 0;
+    if (ra !== rb) return ra - rb;
+    if (b.points !== a.points) return b.points - a.points;
+    if (b.appearances !== a.appearances) return b.appearances - a.appearances;
+    return a.name.localeCompare(b.name);
+  });
+
+  return ranked;
 }
 
 export async function getPlayerTotals(playerId: string) {
