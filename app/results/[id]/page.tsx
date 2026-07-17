@@ -14,13 +14,19 @@ export default async function MatchDetailPage({
   const detail = await getMatchDetail(id);
   if (!detail) notFound();
 
-  const { match, stats } = detail;
+  const { match, stats, squad } = detail;
 
-  // Only list players who actually contributed — a goal, assist, clean
-  // sheet or MOTM. Squad players who didn't do any of these aren't shown.
-  const contributors = stats.filter(
-    (s) => s.goals > 0 || s.assists > 0 || s.clean_sheet || s.motm
+  // Show everyone who was in the match squad — including players who
+  // didn't score or assist. Only players who weren't picked for the match
+  // are left out. (The squad filter also drops any stale stats from a
+  // player who was later removed from this match.)
+  const selectedIds = new Set(
+    squad.filter((s) => s.selected).map((s) => s.player_id)
   );
+  const participants =
+    selectedIds.size > 0
+      ? stats.filter((s) => selectedIds.has(s.player_id))
+      : stats;
 
   return (
     <div className="mx-auto max-w-5xl px-5 py-12 space-y-10">
@@ -55,11 +61,11 @@ export default async function MatchDetailPage({
 
       <section>
         <SectionHeading eyebrow="Match" title="Stats" />
-        {contributors.length === 0 ? (
-          <EmptyState>No goals, assists or clean sheets logged for this match.</EmptyState>
+        {participants.length === 0 ? (
+          <EmptyState>No players recorded for this match.</EmptyState>
         ) : (
           <div className="divide-y divide-line border border-line rounded-lg overflow-hidden">
-            {contributors.map((s: StatsEntryWithPlayer) => (
+            {participants.map((s: StatsEntryWithPlayer) => (
               <Link
                 href={`/players/${s.player_id}`}
                 key={s.player_id}
