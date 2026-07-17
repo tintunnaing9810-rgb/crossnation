@@ -16,6 +16,12 @@ export default async function MatchDetailPage({
 
   const { match, stats } = detail;
 
+  // Only list players who actually contributed — a goal, assist, clean
+  // sheet or MOTM. Squad players who didn't do any of these aren't shown.
+  const contributors = stats.filter(
+    (s) => s.goals > 0 || s.assists > 0 || s.clean_sheet || s.motm
+  );
+
   return (
     <div className="mx-auto max-w-5xl px-5 py-12 space-y-10">
       <div>
@@ -49,11 +55,11 @@ export default async function MatchDetailPage({
 
       <section>
         <SectionHeading eyebrow="Match" title="Stats" />
-        {stats.length === 0 ? (
-          <EmptyState>No player stats logged for this match.</EmptyState>
+        {contributors.length === 0 ? (
+          <EmptyState>No goals, assists or clean sheets logged for this match.</EmptyState>
         ) : (
           <div className="divide-y divide-line border border-line rounded-lg overflow-hidden">
-            {stats.map((s: StatsEntryWithPlayer) => (
+            {contributors.map((s: StatsEntryWithPlayer) => (
               <Link
                 href={`/players/${s.player_id}`}
                 key={s.player_id}
