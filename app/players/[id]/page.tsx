@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getSquadRanking, getPlayerMatchHistory } from "@/lib/queries";
 import { formatMatchDate, formatDate } from "@/lib/format";
 import { StatPill, SectionHeading, EmptyState, Badge } from "@/components/ui";
+import { BackButton } from "@/components/BackButton";
 import { badgeMeta } from "@/lib/badges";
 import type { StatsEntryWithMatch } from "@/lib/types";
 
@@ -26,6 +27,7 @@ export default async function PlayerProfilePage({
 
   return (
     <div className="mx-auto max-w-5xl px-5 py-12 space-y-10">
+      <BackButton />
       <div>
         <p className="text-xs uppercase tracking-[0.2em] text-lime mb-2">
           {totals.position ?? "Player"}

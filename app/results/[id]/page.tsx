@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getMatchDetail } from "@/lib/queries";
 import { formatMatchDate, matchTypeLabel } from "@/lib/format";
 import { SectionHeading, Badge, EmptyState } from "@/components/ui";
+import { BackButton } from "@/components/BackButton";
 import type { StatsEntryWithPlayer } from "@/lib/types";
 
 export default async function MatchDetailPage({
@@ -30,6 +31,7 @@ export default async function MatchDetailPage({
 
   return (
     <div className="mx-auto max-w-5xl px-5 py-12 space-y-10">
+      <BackButton />
       <div>
         <p className="text-xs uppercase tracking-[0.2em] text-lime mb-2">
           {matchTypeLabel(match.match_type)} · {formatMatchDate(match.match_date)}

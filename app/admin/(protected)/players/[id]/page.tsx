@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { updatePlayer } from "../actions";
 import { SectionHeading } from "@/components/ui";
+import { BackButton } from "@/components/BackButton";
 import { PLAYER_BADGES } from "@/lib/badges";
 import { PLAYER_STATUSES } from "@/lib/types";
 import type { Player } from "@/lib/types";
@@ -26,6 +27,7 @@ export default async function EditPlayerPage({
 
   return (
     <div className="max-w-lg space-y-8">
+      <BackButton />
       <SectionHeading eyebrow="Roster" title={`Edit ${player.name}`} />
       <form action={updateWithId} className="bg-surface border border-line rounded-lg p-5 space-y-4">
         <div>

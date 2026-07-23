@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { recordResult } from "../../actions";
 import { SectionHeading, EmptyState } from "@/components/ui";
+import { BackButton } from "@/components/BackButton";
 import { formatMatchDate, matchTitle } from "@/lib/format";
 import { isGoalkeeper } from "@/lib/players";
 import type { Match, SquadEntryWithPlayer } from "@/lib/types";
@@ -110,6 +111,7 @@ export default async function RecordResultPage({
 
   return (
     <div className="max-w-2xl space-y-8">
+      <BackButton />
       <SectionHeading
         eyebrow={`${formatMatchDate(match.match_date)} · ${
           isFriendly ? "Friendly" : "Internal match day"

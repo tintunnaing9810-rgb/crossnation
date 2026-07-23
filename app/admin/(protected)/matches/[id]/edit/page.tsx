@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { updateMatch } from "../../actions";
 import { MatchForm } from "@/components/MatchForm";
 import { SectionHeading } from "@/components/ui";
+import { BackButton } from "@/components/BackButton";
 import { formatDateInput } from "@/lib/format";
 import type { Match } from "@/lib/types";
 
@@ -26,6 +27,7 @@ export default async function EditMatchPage({
 
   return (
     <div className="max-w-lg space-y-8">
+      <BackButton />
       <SectionHeading eyebrow="Fixtures" title="Edit Match" />
       <MatchForm
         action={updateWithId}

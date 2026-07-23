@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { setSquad } from "../actions";
 import { SectionHeading } from "@/components/ui";
+import { BackButton } from "@/components/BackButton";
 import { formatMatchDate, matchTitle } from "@/lib/format";
 import type { Match, Player } from "@/lib/types";
 
@@ -53,6 +54,7 @@ export default async function SetSquadPage({
 
   return (
     <div className="max-w-lg space-y-8">
+      <BackButton />
       <SectionHeading
         eyebrow={formatMatchDate(match.match_date)}
         title={`Squad — ${matchTitle(match)}`}
