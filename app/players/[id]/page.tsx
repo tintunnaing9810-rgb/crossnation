@@ -47,11 +47,15 @@ export default async function PlayerProfilePage({
         <span className="tri-bar mt-3" />
       </div>
 
-      {/* Ranking headline: squad rank, points, rating */}
-      <div className="grid grid-cols-3 gap-3">
+      {/* Ranking headline: squad rank, points, rating, record */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <StatPill label="Squad rank" value={`#${rank}`} />
         <StatPill label="Pts" value={totals.points} />
         <StatPill label="Rating" value={totals.score} />
+        <StatPill
+          label="W-D-L"
+          value={`${totals.wins}-${totals.draws}-${totals.losses}`}
+        />
       </div>
 
       <div className="grid grid-cols-3 sm:grid-cols-5 gap-3">

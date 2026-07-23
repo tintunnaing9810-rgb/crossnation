@@ -26,11 +26,17 @@ export default async function RecordResultPage({
 
   const { data: squadData } = await supabase
     .from("match_squad")
-    .select("player_id, players(id, name, position)")
+    .select("player_id, team, players(id, name, position)")
     .eq("match_id", id)
     .eq("selected", true);
 
   const squad = (squadData ?? []) as unknown as SquadEntryWithPlayer[];
+
+  // For internal match days the squad was already split at selection
+  // time — mirror that split here so the result is easy to fill in.
+  const teamA = squad.filter((s) => s.team === "a");
+  const teamB = squad.filter((s) => s.team === "b");
+  const unassigned = squad.filter((s) => s.team !== "a" && s.team !== "b");
 
   // existing stats, if re-editing a result
   const { data: existingStats } = await supabase
@@ -43,6 +49,64 @@ export default async function RecordResultPage({
   const currentMotm = (existingStats ?? []).find((s) => s.motm)?.player_id ?? "";
 
   const recordResultWithId = recordResult.bind(null, id);
+
+  const renderRows = (list: SquadEntryWithPlayer[]) => (
+    <div className="bg-surface border border-line rounded-lg divide-y divide-line">
+      {list.map((s: SquadEntryWithPlayer) => {
+        const existing = statsByPlayer.get(s.player_id);
+        const gk = isGoalkeeper(s.players?.position);
+        return (
+          <div key={s.player_id} className="px-4 py-3">
+            <div className="font-display font-semibold">
+              {s.players?.name}
+              {s.players?.position && (
+                <span className="text-xs text-muted ml-2 uppercase tracking-wide">
+                  {s.players.position}
+                </span>
+              )}
+            </div>
+            <div className="flex flex-wrap items-end gap-4 mt-2">
+              <label className="text-xs text-muted">
+                <span className="block mb-1 uppercase tracking-wide">
+                  Goals
+                </span>
+                <input
+                  type="number"
+                  min={0}
+                  name={`goals_${s.player_id}`}
+                  defaultValue={existing?.goals ?? 0}
+                  className="w-20 bg-surface-2 border border-line rounded px-2 py-1.5 text-center text-paper"
+                />
+              </label>
+              <label className="text-xs text-muted">
+                <span className="block mb-1 uppercase tracking-wide">
+                  Assists
+                </span>
+                <input
+                  type="number"
+                  min={0}
+                  name={`assists_${s.player_id}`}
+                  defaultValue={existing?.assists ?? 0}
+                  className="w-20 bg-surface-2 border border-line rounded px-2 py-1.5 text-center text-paper"
+                />
+              </label>
+              {gk && (
+                <label className="flex items-center gap-2 text-sm pb-1.5">
+                  <input
+                    type="checkbox"
+                    name={`clean_sheet_${s.player_id}`}
+                    defaultChecked={existing?.clean_sheet ?? false}
+                    className="w-5 h-5 accent-lime"
+                  />
+                  Clean sheet
+                </label>
+              )}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
 
   return (
     <div className="max-w-2xl space-y-8">
@@ -96,67 +160,50 @@ export default async function RecordResultPage({
             </div>
           </div>
 
-          {/* PER-PLAYER STATS — full names, goals + assists, GK clean sheet */}
-          <div>
-            <p className="text-xs uppercase tracking-wide text-muted mb-2">
-              Player stats
-            </p>
-            <div className="bg-surface border border-line rounded-lg divide-y divide-line">
-              {squad.map((s: SquadEntryWithPlayer) => {
-                const existing = statsByPlayer.get(s.player_id);
-                const gk = isGoalkeeper(s.players?.position);
-                return (
-                  <div key={s.player_id} className="px-4 py-3">
-                    <div className="font-display font-semibold">
-                      {s.players?.name}
-                      {s.players?.position && (
-                        <span className="text-xs text-muted ml-2 uppercase tracking-wide">
-                          {s.players.position}
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex flex-wrap items-end gap-4 mt-2">
-                      <label className="text-xs text-muted">
-                        <span className="block mb-1 uppercase tracking-wide">
-                          Goals
-                        </span>
-                        <input
-                          type="number"
-                          min={0}
-                          name={`goals_${s.player_id}`}
-                          defaultValue={existing?.goals ?? 0}
-                          className="w-20 bg-surface-2 border border-line rounded px-2 py-1.5 text-center text-paper"
-                        />
-                      </label>
-                      <label className="text-xs text-muted">
-                        <span className="block mb-1 uppercase tracking-wide">
-                          Assists
-                        </span>
-                        <input
-                          type="number"
-                          min={0}
-                          name={`assists_${s.player_id}`}
-                          defaultValue={existing?.assists ?? 0}
-                          className="w-20 bg-surface-2 border border-line rounded px-2 py-1.5 text-center text-paper"
-                        />
-                      </label>
-                      {gk && (
-                        <label className="flex items-center gap-2 text-sm pb-1.5">
-                          <input
-                            type="checkbox"
-                            name={`clean_sheet_${s.player_id}`}
-                            defaultChecked={existing?.clean_sheet ?? false}
-                            className="w-5 h-5 accent-lime"
-                          />
-                          Clean sheet
-                        </label>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
+          {/* PER-PLAYER STATS — grouped by team for internal match days */}
+          {isFriendly ? (
+            <div>
+              <p className="text-xs uppercase tracking-wide text-muted mb-2">
+                Player stats
+              </p>
+              {renderRows(squad)}
             </div>
-          </div>
+          ) : (
+            <div className="space-y-5">
+              <div>
+                <p className="text-xs uppercase tracking-wide text-lime mb-2">
+                  Team A
+                </p>
+                {teamA.length > 0 ? (
+                  renderRows(teamA)
+                ) : (
+                  <p className="text-sm text-muted">
+                    No players assigned to Team A — set teams on the squad page.
+                  </p>
+                )}
+              </div>
+              <div>
+                <p className="text-xs uppercase tracking-wide text-gold mb-2">
+                  Team B
+                </p>
+                {teamB.length > 0 ? (
+                  renderRows(teamB)
+                ) : (
+                  <p className="text-sm text-muted">
+                    No players assigned to Team B — set teams on the squad page.
+                  </p>
+                )}
+              </div>
+              {unassigned.length > 0 && (
+                <div>
+                  <p className="text-xs uppercase tracking-wide text-muted mb-2">
+                    No team set
+                  </p>
+                  {renderRows(unassigned)}
+                </div>
+              )}
+            </div>
+          )}
 
           {/* MAN OF THE MATCH — a single choice, not a per-row control */}
           <div className="bg-surface border border-line rounded-lg p-5">
@@ -169,11 +216,39 @@ export default async function RecordResultPage({
               className="w-full bg-surface-2 border border-line rounded px-3 py-2"
             >
               <option value="">— none —</option>
-              {squad.map((s: SquadEntryWithPlayer) => (
-                <option key={s.player_id} value={s.player_id}>
-                  {s.players?.name}
-                </option>
-              ))}
+              {isFriendly ? (
+                squad.map((s: SquadEntryWithPlayer) => (
+                  <option key={s.player_id} value={s.player_id}>
+                    {s.players?.name}
+                  </option>
+                ))
+              ) : (
+                <>
+                  <optgroup label="Team A">
+                    {teamA.map((s: SquadEntryWithPlayer) => (
+                      <option key={s.player_id} value={s.player_id}>
+                        {s.players?.name}
+                      </option>
+                    ))}
+                  </optgroup>
+                  <optgroup label="Team B">
+                    {teamB.map((s: SquadEntryWithPlayer) => (
+                      <option key={s.player_id} value={s.player_id}>
+                        {s.players?.name}
+                      </option>
+                    ))}
+                  </optgroup>
+                  {unassigned.length > 0 && (
+                    <optgroup label="No team">
+                      {unassigned.map((s: SquadEntryWithPlayer) => (
+                        <option key={s.player_id} value={s.player_id}>
+                          {s.players?.name}
+                        </option>
+                      ))}
+                    </optgroup>
+                  )}
+                </>
+              )}
             </select>
           </div>
 
