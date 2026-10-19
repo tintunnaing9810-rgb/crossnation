@@ -24,6 +24,7 @@ export const metadata: Metadata = {
 
 const NAV_LINKS = [
   { href: "/", label: "Match" },
+  { href: "/matchday", label: "Match Day" },
   { href: "/squad", label: "Squad" },
   { href: "/about", label: "About" },
   { href: "/join", label: "Join" },
